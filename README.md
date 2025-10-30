@@ -1,32 +1,84 @@
-## cursor-rules-ios
+# cursor-rules-ios
 
-一个用于在 Cursor 中协作开发的规则与工作流示例项目，包含 Serena/Cursor 规则、约定与工作方式。
+> 面向 iOS 项目的 Cursor 规则与 Serena 项目记忆集合，用于规范 AI 协作开发流程，并提供跨项目可复用的工作流与工具指引。
 
-### 内容概览
-- 规则与约定：位于 `.cursor/rules/` 与 `.serena/memories/`
-- 工作流与实践：如何在 Cursor 中进行搜索、编辑、提交流程
+## 项目简介
+- **定位**: 本仓库不是 App 源码，而是提供在 Cursor 中进行 iOS 开发时的规则、流程与知识库。
+- **目标**:
+  - 将「通用规则」与「项目知识」分层管理，提升 AI 协作效率与一致性。
+  - 支持一键复用到任意 iOS 项目，降低新项目启用成本。
+- **适用范围**: 所有使用 Swift/UIKit 的 iOS 项目（示例记忆以借贷类 App 为模板）。
 
-### 本地开发
-1. 克隆或初始化仓库
-2. 在 Cursor/VSCode 打开项目目录
-3. 根据 `.cursor/rules/` 的指引进行协作
+### 维护与更新声明
+- 本仓库中的规则与记忆模板均为我在实际项目中长期使用与打磨的实践沉淀；
+- 后续将不定期更新，以适配新版本工具链与更优工作流；
+- 文档旨在为大家在构建自有规则体系时提供可复用的思路与参考实现。
 
-### 提交与推送
-首次推送到 GitHub 的常用命令（假设你已创建远程仓库）：
+## 目录结构
+```
+.cursor/rules/                      # Cursor 规则（规范、流程、工具）
+├── 00-personal.mdc                 # 个人编码偏好（Always）
+├── 01-serena-workflow.mdc          # Serena 工作流程（Always）
+├── 02-project-conventions.mdc      # 项目约定（Always，需按项目填写）
+├── README.md                       # 规则说明（当前目录说明）
+└── tools/                          # 工具类规则（按需触发）
+    ├── quick-build.mdc             # 快捷构建
+    ├── serena-maintenance.mdc      # Serena 记忆维护
+    ├── xcode-build.mdc             # Xcode 构建运行
+    ├── xcode-log.mdc               # 设备/模拟器日志
+    └── xcode-ui.mdc                # UI 自动化
 
-```bash
-git init
-git add .
-git commit -m "chore: initial commit"
-git branch -M main
-git remote add origin https://github.com/yjh275236/cursor-rules-ios.git
-git push -u origin main
+.serena/memories/                   # Serena 项目记忆（项目知识库）
+├── project_overview.md             # 项目概览（必须）
+├── tech_stack.md                   # 技术栈细节（推荐）
+└── common_patterns.md              # 常见模式与示例（推荐）
 ```
 
-如需使用 Token 免交互推送，可将远程地址替换为：
-`https://<YOUR_GITHUB_TOKEN>@github.com/yjh275236/cursor-rules-ios.git`
+## 使用方式（在 Cursor 中）
+- **核心规则自动加载**（Always）
+  - `00-personal.mdc`、`01-serena-workflow.mdc`、`02-project-conventions.mdc`
+- **项目任务场景**（自动触发 Serena 工作流）
+  1) 初始化 Serena：加载 `project_overview.md`
+  2) 需要第三方库/实现模式：再加载 `tech_stack.md`、`common_patterns.md`
+  3) 探索代码：优先使用符号化工具（禁止直接全文 `read_file`）
+- **工具规则按需触发**：例如在对话中输入 `@xcode-build`、`@xcode-log`、`@xcode-ui`、`@quick-build` 等。
 
-### 许可
-根据项目需要添加许可证（如 MIT）。
+### 关于记忆的生成与维护
+- `.serena/memories` 下的记忆文件由 `@serena-maintenance` 基于你的项目自动生成与持续维护；
+- 你只需在对话中触发 `@serena-maintenance`（或按 README 指引操作），AI 会读取并使用这些记忆进行协作；
+- 当项目有结构/技术栈变更时，重新运行 `@serena-maintenance` 以更新记忆内容。
 
+## 项目记忆模板（示例）
+- `project_overview.md` 提供了一套借贷类 App 的模板信息（模块划分、网络层、基类、配置等），可作为新项目初始化参考。
+- 如需落地到你的真实项目，建议：
+  - 完善 `项目名称/Bundle ID/目录结构/关键约定` 等字段；
+  - 用你的实际第三方库替换 `tech_stack.md` 中的示例；
+  - 把通用的控制器基类/网络层模式沉淀到 `common_patterns.md`。
 
+## 快速开始（复用到新项目）
+1. 复制 `.cursor/rules/` 与 `.serena/memories/` 至你的项目根目录。
+2. 根据你的项目，填写 `02-project-conventions.mdc` 与 `project_overview.md`。
+3. 在 Cursor 中直接开始对话，按需触发工具规则（如 `@xcode-build`）。
+
+## 与 iOS 开发的关系
+- 本仓库不包含业务代码，但内置的规则/记忆对以下方面提供指导：
+  - 架构与基类组织（如 `SSBaseViewController`、`SSBaseRequest` 等模板思路）
+  - 网络请求/缓存/异步流程的通用约定
+  - 构建、运行、日志、UI 自动化等 Xcode 工具化动作
+
+## 贡献指南
+- 提交前请确保：
+  - 新增/修改的规则清晰、可复用、与现有体系一致；
+  - Always 规则保持精简；
+  - 工具规则提供清晰的触发方式与示例。
+- 建议在 PR 描述中附：变更动机、适用场景、示例对话。
+
+## 版本与维护
+- 版本历史与变更要点请参考 `.cursor/rules/README.md` 中的「版本历史」。
+- 建议定期运行 `@serena-maintenance` 对记忆文件进行审计与更新。
+
+## 许可证
+- 若无特别说明，文档与规则以 MIT 许可发布。你可以自由复用并在项目内修改。
+
+---
+如需根据你的业务进行定制，可在 `02-project-conventions.mdc` 与 `.serena/memories/*` 中补充你项目的专属信息。
