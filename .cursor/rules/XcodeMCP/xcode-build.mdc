@@ -1,0 +1,112 @@
+---
+alwaysApply: false
+---
+# Xcode 构建运行
+
+## 触发方式
+- `@xcode-build.mdc`
+- "构建"、"运行"
+
+## 执行流程
+
+### 标准构建（含验证）
+```javascript
+// 1. 检测项目
+discover_projs({ workspaceRoot: "/Users/yjh/..." })
+→ 获取: project.xcodeproj 或 workspace.xcworkspace, scheme
+
+// 2. 获取模拟器
+list_sims()
+→ 找: Booted 状态或指定名称 → 获取 UUID
+
+// 3. 清理构建（可选但推荐）
+clean({ projectPath/workspacePath, scheme, platform: "iOS Simulator" })
+
+// 4. 构建运行
+build_run_sim({
+  projectPath/workspacePath: "...",
+  scheme: "...",
+  simulatorName/UUID: "..."
+})
+
+// 5. 验证应用是否正常运行（重要！）
+// 等待 3-5 秒让应用启动
+sleep(3-5)
+→ describe_ui({ simulatorUuid }) // 检查 UI 层次结构
+→ 如果 UI 为空或应用显示异常，继续诊断
+```
+
+### 输出格式
+```
+📱 项目名称
+🔄 准备模拟器...
+🔨 构建中...
+✅ 已启动
+🔍 验证中... (检查 UI 是否正常显示)
+✅ UI 正常 / ⚠️ UI 异常（进行诊断）
+```
+
+## 构建后验证与问题处理
+
+### 验证流程
+```
+构建成功后：
+1. 等待 3-5 秒让应用启动
+2. describe_ui() → 检查 UI 层次结构
+3. 如果 UI 异常，执行清理重建：
+   stop_app_sim() → clean() → build_run_sim()
+```
+
+### 如果验证失败
+**UI 相关问题（黑屏、UI 为空等）：** 使用 @xcode-ui.mdc 进行详细诊断
+
+**启动问题（应用未启动）：** 使用 @xcode-log.mdc 查看启动日志
+
+**构建错误：** 查看编译错误信息并修复代码
+
+## 最佳实践
+
+### 构建后自动验证
+```javascript
+build_run_sim(...)
+↓
+wait(3-5 seconds)
+↓
+describe_ui() // 验证 UI 层次结构
+↓
+if (UI 为空 || children.length === 0) {
+  诊断并修复
+}
+```
+
+### 清理 + 重建流程
+```javascript
+// 遇到问题时使用
+stop_app_sim()
+clean()
+build_run_sim()
+describe_ui() // 验证
+```
+
+## 其他操作
+
+| 操作 | MCP 调用 |
+|------|---------|
+| 清理构建 | `clean({ projectPath/workspacePath, scheme, platform: "iOS Simulator" })` |
+| 停止应用 | `stop_app_sim({ simulatorName, bundleId })` |
+| 模拟器列表 | `list_sims()` |
+| 验证 UI | `describe_ui({ simulatorUuid })` |
+| 截图验证 | `screenshot({ simulatorUuid })` |
+
+## 项目配置
+- Workspace: `SeasysStart.xcworkspace`
+- Scheme: `SeasysStart`
+- Bundle ID: `com.daiwo.zydd`
+- 默认模拟器: `iPhone SE (3rd generation)`
+
+## 核心规则
+1. 自动检测项目信息（project/workspace）
+2. 构建成功后自动验证 UI 是否正常显示
+3. 如果 UI 异常，自动诊断并尝试修复
+4. 构建失败时显示错误，不显示 emoji
+5. **重要**：构建后一定要验证应用是否正常运行

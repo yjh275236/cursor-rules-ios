@@ -1,0 +1,50 @@
+---
+alwaysApply: false
+---
+# 快捷命令规则
+
+##  重启模拟器并运行（通用版）
+
+**触发方式：**
+- 使用 `@quick-commands.mdc` 引用此规则
+
+当触发时，自动检测项目信息并执行构建运行：
+
+**执行步骤：**
+1. 检测项目：自动查找 `.xcworkspace` 或 `.xcodeproj`，提取 scheme 名称
+2. 重启模拟器：`shutdown all` → `sleep 1` → `boot "iPhone SE (3rd generation)"`
+3. 构建应用：使用 `-quiet build > /dev/null 2>&1` 完全静默
+4. 安装启动：动态查找 .app 路径和 Bundle ID
+
+**关键命令：**
+```bash
+# 检测项目
+WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" | head -1)
+SCHEME=$(basename "${WORKSPACE:-$(find . -maxdepth 1 -name "*.xcodeproj" | head -1)}" | sed 's/\..*//')
+
+# 重启模拟器
+xcrun simctl shutdown all 2>/dev/null; sleep 1; xcrun simctl boot "iPhone SE (3rd generation)" 2>/dev/null; open -a Simulator
+
+# 构建应用（静默）
+xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)' -quiet build > /dev/null 2>&1
+
+# 安装启动
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/*/Build/Products/Debug-iphonesimulator/*.app -maxdepth 0 -name "$SCHEME.app" 2>/dev/null | head -1)
+BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist" 2>/dev/null)
+xcrun simctl install "iPhone SE (3rd generation)" "$APP_PATH" && xcrun simctl launch "iPhone SE (3rd generation)" "$BUNDLE_ID"
+```
+
+**输出格式：**
+```
+📱 项目: [项目名称]
+🔄 重启模拟器...
+🔨 构建应用...
+📦 安装应用...
+✅ 完成
+```
+
+**要求：**
+- 合并命令减少工具调用次数
+- 构建成功时不显示任何警告，只显示 emoji 状态
+- 构建失败时显示错误原因
+- 使用 `> /dev/null 2>&1` 完全隐藏构建输出

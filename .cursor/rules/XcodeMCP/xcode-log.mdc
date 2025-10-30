@@ -1,0 +1,370 @@
+---
+alwaysApply: false
+---
+# Xcode 自动化调试与测试
+
+## 触发方式
+- `@xcode-log.mdc`
+- "调试"、"测试"、"查看日志"、"捕获日志"
+
+## 核心价值
+**当引用此规则时，表示用户遇到问题（UI问题、数据传输问题、崩溃等）需要调试。AI必须：**
+1. 使用 xcodebuild MCP 工具实现完全自动化流程
+2. 诊断问题并编写调试代码
+3. 执行自动化测试验证修复
+4. **最后必须重新刷新 app，供用户最终检查**
+
+## 核心规则（强制执行）
+
+### 规则 1: 完全自动化
+**当引用 `@xcode-log.mdc` 时，必须使用 MCP 工具实现完全自动化，不得手动操作：**
+- 自动检测项目：`discover_projs()`
+- 自动获取模拟器：`list_sims()`
+- 自动构建运行：`build_run_sim()`
+- 自动捕获日志：`launch_app_logs_sim()`
+- 自动检查 UI：`describe_ui()`
+- 自动截屏验证：`screenshot()`
+
+### 规则 2: 问题诊断与调试代码编写
+**当引用此规则时，说明用户遇到了问题，AI必须：**
+1. **诊断问题**：分析问题类型（UI异常、数据传输错误、崩溃、启动失败等）
+2. **编写调试代码**：在关键位置添加带 emoji 标记的 `print()` 语句
+3. **自动测试**：运行应用、捕获日志、分析结果
+4. **迭代修复**：根据日志分析结果修复问题，重复测试直到解决
+
+### 规则 3: 最后刷新 App（强制）
+**无论调试是否成功，最后必须执行：**
+1. 停止当前应用：`stop_app_sim()`
+2. 清理构建：`clean()`
+3. 重新构建运行：`build_run_sim()`
+4. 等待启动：`sleep(3-5)`
+5. 验证 UI：`describe_ui()`
+6. **提示用户检查最终结果**
+
+## 自动化执行流程
+
+### 完整自动化调试流程
+```javascript
+// === 第一步：自动检测项目环境 ===
+1. discover_projs({ workspaceRoot: "/Users/yjh/Desktop/Design patterns" })
+   → 获取: projectPath/workspacePath, scheme
+
+2. list_sims()
+   → 获取: 运行中的模拟器 UUID（优先使用 Booted 状态）
+
+// === 第二步：问题诊断（根据用户描述或实际情况） ===
+3. 分析问题类型：
+   - UI 问题：describe_ui() 检查当前 UI 状态
+   - 启动问题：检查应用是否运行
+   - 数据传输问题：检查相关代码和日志
+   - 崩溃问题：检查崩溃日志
+
+// === 第三步：编写调试代码 ===
+4. 在关键位置添加调试 print() 语句：
+   - 问题相关的函数入口
+   - 关键数据变化点
+   - 异常处理位置
+   
+   使用 emoji 标记：
+   ✅ 成功执行
+   ❌ 错误
+   ⚠️ 警告
+   🔍 调试信息
+   📡 网络请求
+   💾 数据存储
+   🎨 UI 渲染
+
+// === 第四步：自动化测试 ===
+5. build_run_sim({
+     projectPath/workspacePath: "...",
+     scheme: "...",
+     simulatorName/UUID: "..."
+   })
+
+6. sleep(3-5) // 等待应用启动
+
+7. launch_app_logs_sim({
+     simulatorUuid: "...",
+     bundleId: "com.daiwo.zydd"
+   })
+   → 返回 sessionId
+
+8. sleep(3-5) // 等待日志产生
+
+9. stop_device_log_cap({ logSessionId: "..." })
+   → 获取日志内容
+
+10. describe_ui({ simulatorUuid: "..." })
+    → 检查 UI 状态
+
+// === 第五步：分析结果并修复 ===
+11. 分析日志，定位问题
+12. 修复代码
+13. 如果问题未解决，回到步骤 4，继续迭代
+
+// === 第六步：最后刷新 App（强制执行） ===
+14. stop_app_sim({
+      simulatorUuid: "...",
+      bundleId: "com.daiwo.zydd"
+    })
+
+15. clean({
+      projectPath/workspacePath: "...",
+      scheme: "...",
+      platform: "iOS Simulator"
+    })
+
+16. build_run_sim({
+      projectPath/workspacePath: "...",
+      scheme: "...",
+      simulatorName/UUID: "..."
+    })
+
+17. sleep(3-5)
+
+18. describe_ui({ simulatorUuid: "..." })
+    → 验证最终状态
+
+19. screenshot({ simulatorUuid: "..." })
+    → 截图供用户检查
+
+20. **提示用户：应用已刷新，请检查最终结果**
+```
+
+## 调试代码编写规范
+
+### Emoji 标记标准
+```swift
+// ✅ 成功执行
+print("✅ AppDelegate: didFinishLaunching called")
+print("✅ ViewController: viewDidLoad called")
+print("✅ Data: Successfully loaded \(count) items")
+
+// ❌ 错误
+print("❌ Error: Failed to load data - \(error.localizedDescription)")
+print("❌ Network: Request failed with status \(statusCode)")
+
+// ⚠️ 警告
+print("⚠️ Warning: Data is nil, using default value")
+print("⚠️ UI: Frame is zero, view may not be laid out")
+
+// 🔍 调试信息
+print("🔍 Debug: Current count = \(count)")
+print("🔍 Debug: Entering function processData()")
+
+// 📡 网络请求
+print("📡 Network: Starting request to \(url)")
+print("📡 Network: Response received: \(response)")
+
+// 💾 数据存储
+print("💾 Data: Saving to UserDefaults")
+print("💾 Data: Loading from cache")
+
+// 🎨 UI 渲染
+print("🎨 UI: View frame set to \(frame)")
+print("🎨 UI: Updating \(subviewCount) subviews")
+```
+
+### 关键位置添加调试代码
+
+#### UI 问题调试
+```swift
+// ViewController.swift
+override func viewDidLoad() {
+    super.viewDidLoad()
+    print("✅ ViewController: viewDidLoad called")
+    print("🎨 UI: View frame: \(view.frame)")
+    // ... 其他代码 ...
+}
+
+override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    print("✅ ViewController: viewWillAppear called")
+    // ... 其他代码 ...
+}
+
+override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    print("🎨 UI: viewDidLayoutSubviews called, frame: \(view.frame)")
+}
+```
+
+#### 数据传输问题调试
+```swift
+// 数据加载
+func loadData() {
+    print("🔍 Debug: Starting loadData()")
+    print("📡 Network: Requesting data from \(urlString)")
+    
+    // ... 网络请求 ...
+    
+    completionHandler { result in
+        switch result {
+        case .success(let data):
+            print("✅ Data: Successfully loaded \(data.count) items")
+            print("💾 Data: First item: \(data.first?.description ?? "nil")")
+        case .failure(let error):
+            print("❌ Error: Failed to load data - \(error.localizedDescription)")
+        }
+    }
+}
+
+// 数据处理
+func processData(_ data: [Item]) {
+    print("🔍 Debug: Processing \(data.count) items")
+    for (index, item) in data.enumerated() {
+        print("🔍 Debug: Item \(index): \(item.description)")
+    }
+}
+```
+
+#### 启动问题调试
+```swift
+// AppDelegate.swift
+func application(_ application: UIApplication, 
+                didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    print("✅ AppDelegate: didFinishLaunchingWithOptions called")
+    
+    // ... 窗口创建代码 ...
+    
+    if window != nil {
+        print("✅ AppDelegate: Window created successfully")
+        print("🎨 UI: Window frame: \(window!.frame)")
+    } else {
+        print("❌ Error: Failed to create window")
+    }
+    
+    return true
+}
+
+// SceneDelegate.swift（如果使用 Scene）
+func scene(_ scene: UIScene, willConnectTo session: UISceneSession, 
+           options connectionOptions: UIScene.ConnectionOptions) {
+    print("✅ SceneDelegate: willConnectTo called")
+    
+    guard let windowScene = (scene as? UIWindowScene) else {
+        print("❌ Error: Failed to cast scene to UIWindowScene")
+        return
+    }
+    
+    print("✅ SceneDelegate: Window scene created")
+}
+```
+
+## 问题诊断指南
+
+### UI 问题诊断
+```
+问题现象：黑屏、UI 不显示、布局异常
+
+诊断流程：
+1. describe_ui() → 检查 UI 层次结构
+2. 如果 UI 为空或 children.length === 0 → UI 未加载
+3. 添加调试代码：
+   - viewDidLoad/viewWillAppear
+   - viewDidLayoutSubviews
+   - 关键 UI 更新方法
+4. 捕获日志，检查是否执行到这些方法
+5. 根据日志定位问题代码
+```
+
+### 数据传输问题诊断
+```
+问题现象：数据不显示、数据错误、网络请求失败
+
+诊断流程：
+1. 添加调试代码：
+   - 网络请求开始/结束
+   - 数据解析成功/失败
+   - 数据更新到 UI
+2. 捕获日志，检查数据流转：
+   - 请求是否发送
+   - 响应是否接收
+   - 数据是否正确解析
+   - UI 是否正确更新
+3. 根据日志定位问题
+```
+
+### 启动问题诊断
+```
+问题现象：应用无法启动、崩溃、启动后立即退出
+
+诊断流程：
+1. build_run_sim() 启动应用
+2. 立即 capture logs
+3. 检查关键日志：
+   - AppDelegate: didFinishLaunching
+   - SceneDelegate: willConnectTo
+   - ViewController: viewDidLoad
+4. 如果缺少某个日志，说明该步骤未执行
+5. 检查崩溃信息
+```
+
+### 崩溃问题诊断
+```
+问题现象：应用崩溃
+
+诊断流程：
+1. build_run_sim() 启动应用
+2. launch_app_logs_sim() 捕获日志
+3. 查找崩溃堆栈信息
+4. 定位崩溃位置和原因
+5. 修复代码并重新测试
+```
+
+## 日志分析要点
+
+### 关键日志检查清单
+```
+启动流程：
+- [ ] ✅ AppDelegate: didFinishLaunching
+- [ ] ✅ SceneDelegate: willConnectTo（如果使用 Scene）
+- [ ] ✅ ViewController: viewDidLoad
+- [ ] ✅ ViewController: viewWillAppear
+
+数据流程：
+- [ ] 📡 Network: Request started
+- [ ] 📡 Network: Response received
+- [ ] ✅ Data: Successfully loaded
+- [ ] 🎨 UI: Updating UI with data
+
+UI 流程：
+- [ ] 🎨 UI: View frame set
+- [ ] 🎨 UI: viewDidLayoutSubviews called
+- [ ] ✅ ViewController: 生命周期方法执行
+
+错误检查：
+- [ ] ❌ Error: 任何错误信息
+- [ ] ⚠️ Warning: 任何警告信息
+```
+
+## 调试代码清理（完成后）
+
+### 清理原则
+**调试完成后，必须删除所有临时调试代码：**
+
+1. **删除调试 print()**
+   - 删除所有带 emoji 标记的 print 语句
+   - 保留必要的错误处理 print
+
+2. **验证清理**
+   ```bash
+   grep -r "print(" --include="*.swift" | grep "✅\|❌\|⚠️\|🔍\|📡\|💾\|🎨\|Debug"
+   ```
+
+3. **清理清单**
+   - [ ] AppDelegate/SceneDelegate 中无调试 print
+   - [ ] ViewController 生命周期方法中无调试 print
+   - [ ] 数据加载方法中无调试 print
+   - [ ] 仅保留必要的错误处理输出
+
+## 项目配置
+- Bundle ID: `com.daiwo.zydd`（或当前项目）
+- 默认模拟器: `iPhone SE (3rd generation)`
+- 项目路径: `/Users/yjh/Desktop/Design patterns`
+
+## 注意事项
+- **强制执行**：引用此规则时，必须完成整个自动化流程，不得中途停止
+- **最后刷新**：无论调试结果如何，最后必须重新构建运行 app
+- **日志工具优先级**：优先使用 `launch_app_logs_sim`，失败时提示查看 Xcode Debug Console
+- **迭代调试**：如果问题未解决，继续重复调试流程直到解决
