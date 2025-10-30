@@ -56,9 +56,9 @@
   - 把通用的控制器基类/网络层模式沉淀到 `common_patterns.md`。
 
 ## 快速开始（复用到新项目）
-1. 复制 `.cursor/rules/` 与 `.serena/memories/` 至你的项目根目录。
-2. 根据你的项目，填写 `02-project-conventions.mdc` 与 `project_overview.md`。
-3. 在 Cursor 中直接开始对话，按需触发工具规则（如 `@xcode-build`）。
+1. 复制 `.cursor/rules/`  至你的项目根目录。
+2. 根据你的项目，填写 `02-project-conventions.mdc` 与 搭建 Serena MCP。
+3. 在 Cursor 中直接开始对话，触发 `@serena-maintenance` 自动生成/更新记忆文件。
 
 ## 与 iOS 开发的关系
 - 本仓库不包含业务代码，但内置的规则/记忆对以下方面提供指导：
