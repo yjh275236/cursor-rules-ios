@@ -4,7 +4,15 @@ alwaysApply: false
 
 # Serena Memories 维护指南
 
-本规则用于指导 AI 如何构建、更新和维护 Serena MCP 的 memory 文件。**仅在用户明确请求时使用此规则**。
+## ⚠️ 重要区分（AI 必读）
+
+**本规则用途**：构建、更新、维护 Serena Memories（管理 memory 文件本身）
+
+**与日常工作流的区别**：
+- 📖 **日常开发** → 使用 `01-serena-workflow.mdc`（读取和使用 memories）
+- 🛠️ **维护 memories** → 使用本规则（管理 memory 文件）
+
+**触发方式**：**仅在用户明确请求 `@serena-maintenance` 时使用**
 
 ---
 
@@ -456,397 +464,37 @@ pod outdated          # 查看过期依赖
 
 **推荐大小**: 300-500 行
 
+**内容建议**:
+- 记录项目特定的代码模式（网络请求、UI 创建、数据处理等）
+- 记录架构模式和数据流向
+- 只记录"不同寻常"的实现，不记录通用知识
+- 代码示例保持简短（< 30 行）
+
 **标准模板**:
 ```markdown
 # 常用代码模式
 
+记录项目中实际使用的代码模式（不记录通用知识）。
+
 ## 网络请求模式
+[项目特定实现]
 
-### 使用 async/await（推荐）
-
-```swift
-// 定义 API Service
-class UserService {
-    static let shared = UserService()
-    
-    func fetchUserInfo(userId: Int) async throws -> User {
-        let url = "\(APIConfig.baseURL)/users/\(userId)"
-        let (data, _) = try await URLSession.shared.data(from: URL(string: url)!)
-        return try JSONDecoder().decode(User.self, from: data)
-    }
-}
-
-// 使用
-Task {
-    do {
-        let user = try await UserService.shared.fetchUserInfo(userId: 123)
-        updateUI(with: user)
-    } catch {
-        showError(error)
-    }
-}
-```
-
-### 使用 Combine
-
-```swift
-import Combine
-
-class UserViewModel: ObservableObject {
-    @Published var user: User?
-    @Published var isLoading = false
-    
-    private var cancellables = Set<AnyCancellable>()
-    
-    func loadUser(userId: Int) {
-        isLoading = true
-        
-        UserService.shared.fetchUserPublisher(userId: userId)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.isLoading = false
-                if case .failure(let error) = completion {
-                    // 处理错误
-                }
-            } receiveValue: { [weak self] user in
-                self?.user = user
-            }
-            .store(in: &cancellables)
-    }
-}
-```
-
----
-
-## UI 组件创建模式
-
-### UIKit + SnapKit
-
-```swift
-class CustomView: UIView {
-    // MARK: - UI Components
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .bold)
-        label.textColor = .black
-        return label
-    }()
-    
-    private lazy var actionButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("确认", for: .normal)
-        button.addTarget(self, action: #selector(handleAction), for: .touchUpInside)
-        return button
-    }()
-    
-    // MARK: - Initialization
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: - UI Setup
-    
-    private func setupUI() {
-        addSubview(titleLabel)
-        addSubview(actionButton)
-        
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(20)
-            make.left.right.equalToSuperview().inset(16)
-        }
-        
-        actionButton.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(20)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(120)
-            make.height.equalTo(44)
-        }
-    }
-    
-    // MARK: - Actions
-    
-    @objc private func handleAction() {
-        // 处理按钮点击
-    }
-}
-```
-
-### SwiftUI
-
-```swift
-struct UserProfileView: View {
-    @StateObject private var viewModel = UserProfileViewModel()
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            if viewModel.isLoading {
-                ProgressView()
-            } else if let user = viewModel.user {
-                AsyncImage(url: URL(string: user.avatarURL)) { image in
-                    image.resizable()
-                } placeholder: {
-                    Color.gray
-                }
-                .frame(width: 100, height: 100)
-                .clipShape(Circle())
-                
-                Text(user.name)
-                    .font(.title)
-                
-                Button("编辑") {
-                    viewModel.editUser()
-                }
-            }
-        }
-        .task {
-            await viewModel.loadUser()
-        }
-    }
-}
-```
-
----
+## UI 创建模式  
+[项目特定实现]
 
 ## 数据处理模式
+[项目特定实现]
 
-### JSON 解析（Codable）
+## 架构模式
+[项目特定实现]
 
-```swift
-// 定义模型
-struct User: Codable {
-    let id: Int
-    let name: String
-    let email: String
-    let avatarURL: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case email
-        case avatarURL = "avatar_url"
-    }
-}
-
-// 解析
-let decoder = JSONDecoder()
-decoder.keyDecodingStrategy = .convertFromSnakeCase
-let user = try decoder.decode(User.self, from: data)
-
-// 编码
-let encoder = JSONEncoder()
-encoder.keyEncodingStrategy = .convertToSnakeCase
-let data = try encoder.encode(user)
 ```
 
-### 本地存储（UserDefaults）
+#### 4. api_reference.md（可选）
 
-```swift
-extension UserDefaults {
-    private enum Keys {
-        static let userToken = "userToken"
-        static let isFirstLaunch = "isFirstLaunch"
-    }
-    
-    var userToken: String? {
-        get { string(forKey: Keys.userToken) }
-        set { set(newValue, forKey: Keys.userToken) }
-    }
-    
-    var isFirstLaunch: Bool {
-        get { bool(forKey: Keys.isFirstLaunch) }
-        set { set(newValue, forKey: Keys.isFirstLaunch) }
-    }
-}
-```
-
-### Keychain 存储（敏感数据）
-
-```swift
-import Security
-
-class KeychainManager {
-    static let shared = KeychainManager()
-    
-    func save(_ value: String, forKey key: String) -> Bool {
-        guard let data = value.data(using: .utf8) else { return false }
-        
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            kSecValueData as String: data
-        ]
-        
-        SecItemDelete(query as CFDictionary)
-        return SecItemAdd(query as CFDictionary, nil) == errSecSuccess
-    }
-    
-    func get(forKey key: String) -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            kSecReturnData as String: true
-        ]
-        
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        
-        guard status == errSecSuccess,
-              let data = result as? Data,
-              let string = String(data: data, encoding: .utf8) else {
-            return nil
-        }
-        
-        return string
-    }
-}
-```
-
----
-
-## 错误处理模式
-
-### 自定义错误类型
-
-```swift
-enum AppError: LocalizedError {
-    case networkError(String)
-    case dataParsingError
-    case unauthorized
-    case unknown
-    
-    var errorDescription: String? {
-        switch self {
-        case .networkError(let message):
-            return "网络错误: \(message)"
-        case .dataParsingError:
-            return "数据解析失败"
-        case .unauthorized:
-            return "未授权，请重新登录"
-        case .unknown:
-            return "未知错误"
-        }
-    }
-}
-```
-
-### 统一错误处理
-
-```swift
-extension UIViewController {
-    func handleError(_ error: Error) {
-        let message: String
-        
-        if let appError = error as? AppError {
-            message = appError.errorDescription ?? "未知错误"
-        } else {
-            message = error.localizedDescription
-        }
-        
-        showAlert(title: "错误", message: message)
-    }
-    
-    private func showAlert(title: String, message: String) {
-        let alert = UIAlertController(
-            title: title,
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "确定", style: .default))
-        present(alert, animated: true)
-    }
-}
-```
-
----
-
-## MVVM 架构模式
-
-```swift
-// Model
-struct Product: Codable {
-    let id: Int
-    let name: String
-    let price: Double
-}
-
-// ViewModel
-class ProductListViewModel: ObservableObject {
-    @Published var products: [Product] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    
-    private let service: ProductService
-    
-    init(service: ProductService = ProductService.shared) {
-        self.service = service
-    }
-    
-    func loadProducts() async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            products = try await service.fetchProducts()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        
-        isLoading = false
-    }
-}
-
-// View (SwiftUI)
-struct ProductListView: View {
-    @StateObject private var viewModel = ProductListViewModel()
-    
-    var body: some View {
-        List(viewModel.products, id: \.id) { product in
-            HStack {
-                Text(product.name)
-                Spacer()
-                Text("$\(product.price, specifier: "%.2f")")
-            }
-        }
-        .task {
-            await viewModel.loadProducts()
-        }
-    }
-}
-```
-```
-
----
-
-#### 4. architecture.md（可选，复杂项目）
-
-**用途**: 详细的架构设计说明
+**用途**: API 端点文档（适用于 RESTful API 较多的项目）
 
 **推荐大小**: 200-400 行
-
-**适用场景**:
-- 使用复杂架构模式（VIPER、Clean Architecture）
-- 有明确的分层设计
-- 需要详细说明模块间通信
-
----
-
-#### 5. api_guide.md（可选，API 密集型项目）
-
-**用途**: API 使用指南和文档
-
-**推荐大小**: 200-400 行
-
-**适用场景**:
-- RESTful API 较多
-- 有复杂的认证流程
-- 需要记录 API 端点和参数
 
 ---
 
@@ -867,152 +515,121 @@ struct ProductListView: View {
 3. 查看主要源文件了解架构模式
 4. 分析目录结构
 
-**步骤 3: 优先创建 project_overview.md**
-1. 项目基本信息
-2. 技术栈概览（5-10 个核心库）
-3. 简化的目录结构
-4. 核心架构说明
-5. 关键约定（如类前缀、基类等）
+**步骤 3: 创建标准文件**
+1. 必须创建：`project_overview.md`
+2. 根据项目规模选择创建：`tech_stack.md`, `common_patterns.md`
+3. 使用标准模板填充内容
 
-**步骤 4: 根据需要创建其他文件**
-
-**创建 tech_stack.md** 当:
-- 使用了 5+ 个第三方库
-- 库的配置较复杂
-- 有特定的使用模式
-
-**创建 common_patterns.md** 当:
-- 有统一的代码模式
-- 网络请求、UI 创建有特定规范
-- 有自定义的架构实现
-
-**步骤 5: 验证和优化**
-1. 确保每个文件内容完整
-2. 检查文件大小（< 500 行）
-3. 验证代码示例来自实际项目
-4. 确保没有与 Cursor rules 重复
+**步骤 4: 验证质量**
+使用质量标准检查生成的内容
 
 ---
 
 ### 更新现有 Memories
 
-**步骤 1: 评估变更**
-1. 使用 `mcp_serena_list_memories` 查看现有文件
-2. 确定需要更新的文件
-3. 读取相关文件了解当前内容
+当用户请求更新特定 memory 时：
 
-**步骤 2: 收集新信息**
-1. 从代码中提取实际示例
-2. 询问用户具体变更
-3. 检查新增的依赖或架构变化
+**步骤 1: 读取现有内容**
+使用 `mcp_serena_read_memory` 读取目标文件
+
+**步骤 2: 定位更新位置**
+找到需要更新的章节或内容
 
 **步骤 3: 更新内容**
-1. 使用 `mcp_serena_write_memory` 更新
-2. 保持原有结构
-3. 确保代码示例可运行
-4. 验证信息准确性
+使用 `mcp_serena_write_memory` 更新文件
+
+**步骤 4: 验证一致性**
+确保更新后的内容与其他 memory 文件保持一致
 
 ---
 
 ### 审计 Memories 质量
 
-当用户请求审计时，检查以下方面：
+当用户请求审计时：
 
-**1. 内容质量检查**
-- [ ] 信息是否准确和最新
-- [ ] 是否有过时的内容
-- [ ] 代码示例是否来自实际项目
-- [ ] 代码示例是否可运行
-- [ ] 是否有重复信息
+**执行以下检查**：
 
-**2. 结构组织检查**
-- [ ] 文件数量是否合理（不超过 5 个）
-- [ ] 每个文件职责是否清晰
-- [ ] 文件大小是否适中（< 500 行）
-- [ ] 标题层级是否清晰
-- [ ] 是否有过度碎片化
+1. **大小检查**
+   - 单文件 > 600 行 → 标记为"需要精简"
+   - 单文件 500-600 行 → 标记为"警告"
 
-**3. 与 Cursor Rules 的关系**
-- [ ] 是否有应该在 Cursor rules 的内容
-- [ ] 是否有与 Cursor rules 重复的内容
-- [ ] 是否有通用规范混入项目特定信息
+2. **重复检查**
+   - 检查相同代码示例是否出现在多个文件
+   - 检查与 Cursor rules 的内容重复
 
-**4. 可用性检查**
-- [ ] 文件名是否描述性强
-- [ ] 是否容易找到需要的信息
-- [ ] 代码示例是否实用
-- [ ] 说明是否清晰
+3. **质量评分**（总分 100）
+   - 内容准确性（30 分）
+   - 结构组织（25 分）
+   - 实用性（25 分）
+   - 无重复性（20 分）
+
+4. **输出报告**
+   - 列出所有发现的问题
+   - 提供改进建议
+   - 给出质量评分
 
 ---
 
 ### 精简 Memories
 
-当 memories 内容过多或冗余时：
+当文件数 > 5 或单文件 > 600 行时：
 
-**步骤 1: 识别问题**
-- 文件数量过多（> 5 个）
-- 单个文件过大（> 500 行）
-- 有重复内容
-- 有通用内容（应该在 Cursor rules）
+**执行策略**：
 
-**步骤 2: 合并策略**
-- 将相关小文件合并（如 api_guide 合并到 tech_stack）
-- 提取通用内容到 Cursor rules
-- 删除过时内容
-- 精简冗长的解释
+1. **合并相关内容**
+   - 将小文件合并到相关的大文件
+   - 例如：将 `api_reference.md` 合并到 `tech_stack.md`
 
-**步骤 3: 重组**
-- 按照标准模板重新组织
-- 确保符合推荐的文件数量
-- 保持关键信息不丢失
-- 验证代码示例仍然有效
+2. **删除冗余**
+   - 删除与 Cursor rules 重复的内容
+   - 删除通用知识（非项目特定）
+
+3. **精简示例**
+   - 缩短过长的代码示例
+   - 只保留关键部分
+
+4. **验证结果**
+   - 确保精简后文件数 ≤ 5
+   - 确保单文件 < 600 行
 
 ---
 
 ## 更新触发场景
 
 ### 必须更新的情况
-- ✅ 项目结构发生重大变化
-- ✅ 添加或删除了重要的第三方库
-- ✅ 架构模式发生变化
-- ✅ API 基础配置变更
+- 添加了新的重要第三方库
+- 项目架构发生重大变更
+- 目录结构调整
+- 核心约定修改
 
 ### 建议更新的情况
-- ⚠️ 发现了新的最佳实践
-- ⚠️ 解决了重要的技术问题
-- ⚠️ 常用代码模式有变化
-- ⚠️ 定期维护（如季度审计）
+- 添加了新的代码模式
+- API 端点变更
+- 环境配置更新
 
 ### 不需要更新的情况
-- ❌ 小的代码修改
-- ❌ 临时的调试信息
-- ❌ 单个 bug 修复
-- ❌ UI 样式微调
+- 小的 bug 修复
+- UI 样式微调
+- 临时性代码
 
 ---
 
 ## 质量标准
 
 ### 内容要求
-- ✅ 使用 Markdown 格式
-- ✅ 清晰的标题层级（# ## ###）
-- ✅ 包含实用的代码示例
-- ✅ 代码示例来自实际项目，可运行
-- ✅ 突出重要信息（使用粗体、引用等）
-- ❌ 避免与 Cursor rules 重复
-- ❌ 避免记录通用知识（Swift 语法等）
-- ❌ 避免过度详细的注释
+- 准确反映项目当前状态
+- 使用实际项目中的代码示例
+- 避免记录通用知识
+- 避免与 Cursor rules 重复
 
 ### 结构要求
-- ✅ 每个文件有清晰的用途
-- ✅ 章节组织合理
-- ✅ 使用代码块标注语言
-- ✅ 使用列表、表格提高可读性
+- 使用标准 Markdown 格式
+- 清晰的章节层次
+- 适当的代码高亮
 
 ### 大小控制
-- ✅ 单个文件 < 500 行
-- ✅ 总文件数 ≤ 5 个
-- ✅ `project_overview.md` < 200 行
+- 文件数量：1-5 个
+- 单文件大小：< 500 行（理想），< 600 行（红线）
 
 ---
 
@@ -1037,46 +654,19 @@ AI 自动执行：
 
 用户明确指定操作时，跳过自动评估：
 
-#### 完整重建
-```
+```bash
+# 完整重建
 @serena-maintenance 从头构建项目 memories
-@serena-maintenance 只构建
-```
-AI 将：分析项目 → 创建标准文件 → 填充内容 → 验证质量
 
-#### 更新特定文件
-```
+# 更新特定文件
 @serena-maintenance 更新 tech_stack.md，我添加了 Alamofire
-@serena-maintenance 只更新 common_patterns，添加新的网络请求模式
-```
-AI 将：读取文件 → 添加新内容 → 更新文件
 
-#### 质量审计
-```
-@serena-maintenance 审计现有 memories 的质量
+# 质量审计
 @serena-maintenance 只审计
-```
-AI 将：检查所有 memories → 识别问题 → 提供改进建议
 
-#### 精简优化
-```
-@serena-maintenance 精简 memories，删除冗余内容
+# 精简优化
 @serena-maintenance 只精简
 ```
-AI 将：分析内容 → 合并相关文件 → 删除冗余 → 重新组织
-
-#### 检查过时内容
-```
-@serena-maintenance 检查 memories 是否过时
-```
-AI 将：对比代码 → 识别过时信息 → 更新内容
-
-#### 状态报告
-```
-@serena-maintenance 生成状态报告
-@serena-maintenance 只报告
-```
-AI 将：分析当前状态 → 生成详细报告 → 提供建议
 
 ---
 
@@ -1117,73 +707,41 @@ AI 将：分析当前状态 → 生成详细报告 → 提供建议
 
 ## ❓ 常见问题
 
-### Q1: 什么时候使用智能模式，什么时候使用手动模式？
+**Q1: 什么时候使用智能模式？**
+- 不确定需要什么操作 → `@serena-maintenance`（智能模式）
+- 明确知道要做什么 → `@serena-maintenance 只[操作]`（手动模式）
 
-**A**: 
-- **智能模式**（推荐）：不确定需要什么操作时，让 AI 自动评估
-  ```
-  @serena-maintenance
-  ```
-- **手动模式**：明确知道要做什么时，直接指定操作
-  ```
-  @serena-maintenance 只更新 tech_stack.md
-  ```
-
-### Q2: AI 如何判断应该执行哪个操作？
-
-**A**: AI 按照以下优先级顺序判断：
+**Q2: AI 如何判断执行哪个操作？**
 1. 无 memories → 构建
 2. 文件数 > 5 或单文件 > 600 行 → 精简
 3. 单文件 500-600 行或重复 3+ 处 → 审计
 4. 用户消息提到变更关键词 → 更新
 5. 其他情况 → 报告
 
-### Q3: 质量评分是如何计算的？
+**Q3: 文件大小限制？**
+- < 500 行：理想 ✅
+- 500-600 行：警告 ⚠️
+- \> 600 行：红线 ❌
 
-**A**: 质量评分基于 4 个维度，总分 100：
-- 内容准确性（30 分）
-- 结构组织（25 分）
-- 实用性（25 分）
-- 无重复性（20 分）
+**Q4: Cursor Rules vs Serena Memories？**
+- Cursor Rules：通用编码规范、跨项目偏好
+- Serena Memories：项目特定信息、技术栈
 
-### Q4: 为什么文件大小限制是 500-600 行？
-
-**A**: 
-- **< 500 行**：理想大小，AI 可以快速读取和理解
-- **500-600 行**：警告区，建议精简但可接受
-- **> 600 行**：红线，必须拆分或精简，影响 AI 处理效率
-
-### Q5: 什么内容应该放在 Cursor rules，什么放在 Serena memories？
-
-**A**:
-- **Cursor Rules**：通用编码规范、跨项目偏好、工作流程
-- **Serena Memories**：项目特定信息、技术栈、代码模式
-
-### Q6: 如何判断内容是否重复？
-
-**A**: 重复内容包括：
-- 相同的代码示例出现在多个文件
-- 相同的库介绍在多处重复
-- 与 Cursor rules 重复的通用规范
-
-### Q7: 自动评估会修改我的 memories 吗？
-
-**A**: 
-- **智能模式**：会根据评估结果自动执行操作（可能修改）
-- **手动模式**：只有你明确指定操作才会修改
-- **报告模式**：只提供建议，不修改
-
-### Q8: 多久应该审计一次 memories？
-
-**A**: 建议时机：
-- ✅ 每季度定期审计
-- ✅ 重大架构变更后
-- ✅ 添加 5+ 个新库后
-- ✅ 项目规模显著变化后
+**Q5: 多久审计一次？**
+建议：每季度、重大架构变更后、添加 5+ 个新库后
 
 ---
 
 ## 📝 版本更新日志
+
+### v2.1 (2025-10-31) - 精简优化
+**删除**：
+- 🗑️ 删除所有通用代码示例（约 400+ 行）
+- 🗑️ common_patterns 模板改为简洁指导
+
+**改进动机**: 通用代码示例对每个项目都不适用，应该由实际项目自己编写
+
+---
 
 ### v2.0 (2025-10-30) - 智能化升级
 **新增**：
@@ -1214,4 +772,4 @@ AI 将：分析当前状态 → 生成详细报告 → 提供建议
 
 ---
 
-**重要提醒**: 本规则仅在用户明确请求时使用。日常开发使用 `01-serena-workflow.mdc` 规则。
+**最后更新**: 2025-10-31

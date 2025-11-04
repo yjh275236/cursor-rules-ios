@@ -4,245 +4,355 @@
 
 > 💡 **特别说明**: 所有规则中的 `{项目名}` 为占位符，AI 会根据当前激活的 Serena MCP 服务器自动识别并替换。
 
-## 核心原则
+## 📐 核心原则
 
-**alwaysApply: true → 简洁**
+**alwaysApply: true → 精简高效**
 - 始终加载，影响所有对话
-- 节省 token，快速加载
-- 只保留核心要点
+- 控制 token 占用（~200 行以内）
+- 只保留核心要点和可执行指令
 
-**alwaysApply: false → 详细**
+**alwaysApply: false → 详细完整**
 - 按需手动触发（使用 `@规则名`）
-- 可包含详细模板和示例
+- 可包含详细模板、示例和决策树
 - 作为完整参考指南
 
 ---
 
-## 文件结构
+## 📁 文件结构
 
 ```
 .cursor/rules/
-├── 00-personal.mdc              # 个人编码偏好 (always)
-├── 01-serena-workflow.mdc       # Serena 工作流程 (always)
-├── 02-project-conventions.mdc   # 项目约定 (always)
-├── 03-problem-handling.mdc      # 问题处理指南 (always)
+├── 00-personal.mdc              # 个人编码偏好 [always, 34行]
+├── 01-serena-workflow.mdc       # Serena 工作流程 [always, 65行]
+├── 02-project-conventions.mdc   # 设计原则与约束 [always, 53行]
 ├── README.md                    # 本文件
-└── tools/                       # 工具类规则 (按需触发)
-    ├── quick-build.mdc          # 快捷构建命令
-    ├── serena-maintenance.mdc   # Serena 维护指南
-    ├── xcode-build.mdc          # Xcode 构建工具
-    ├── xcode-log.mdc            # Xcode 日志工具
-    └── xcode-ui.mdc             # Xcode UI 自动化
+├── tools/                       # 工具类规则 [按需触发]
+│   ├── problem-handling.mdc     # 问题处理指南 [10行]
+│   ├── quick-build.mdc          # 快捷构建命令 [50行]
+│   ├── rules-maintenance.mdc    # 规则编写指南 [187行]
+│   └── serena-maintenance.mdc   # Serena 维护指南 [1149行]
+└── XcodeMCP/                    # Xcode MCP 工具 [按需触发]
+    ├── xcode-build.mdc          # 构建和运行 [112行]
+    └── xcode-log.mdc            # 日志分析 [370行]
 ```
 
+**统计**：
+- 核心规则（Always）：152 行
+- 工具规则（按需）：1396 行
+- XcodeMCP 工具：482 行
+- 总计：2030 行
+
 ---
 
-## 核心规则（根目录）
+## 📋 核心规则详解
 
-### 1. `00-personal.mdc`（~40 行）✅ Always
+### 1. `00-personal.mdc`（34 行）✅ Always
 
-**用途**: 个人编码偏好和 AI 协作风格（**通用，可跨项目复用**）
+**用途**: 个人编码偏好和工作方式
 
-**内容**:
-- 回答格式要求（说明使用的规则/记忆/MCP）
-- 📋 强制检查清单
-  - 步骤 1：初始化 Serena MCP（`initial_instructions`, `check_onboarding`, `list_memories`）
-  - 步骤 2：代码探索优先级（🚨 禁止直接 `read_file` 读代码）
-- 编码规范
-  - 工作方式（先思考再实现、逐步推理、简明扼要）
-  - 代码质量（完整性、可读性、安全性）
-
-**跨项目使用**: 直接复制到新项目的 `.cursor/rules/` 目录
-  - 诚信原则（明确不确定性、不猜测）
+**核心内容**:
+- **回答格式**：简洁优先，必要时说明使用的工具
+- **工作方式**：先思考再实现、逐步推理、简明扼要
+- **代码质量**：100% 完整性、可读性优先、安全高效
+- **诚信原则**：明确不确定性、不猜测
 
 **可复用性**: ✅ 完全可跨项目复用
 
 ---
 
-### 2. `01-serena-workflow.mdc`（~65 行）✅ Always
+### 2. `01-serena-workflow.mdc`（65 行）✅ Always
 
-**用途**: 指导 AI 如何使用 Serena MCP 的 memory 功能
+**用途**: Serena MCP 工作流程和工具使用规范
 
-**内容**:
-- 🎯 执行条件（自动判断技术代码指标）
-- ⚡ 强制步骤（必须执行的加载流程）
-- ✅ 自我验证（回复前确认检查清单）
-- 📚 标准文件清单（必须/推荐两级分类）
-
-**可复用性**: ✅ 完全可跨项目复用
-
----
-
-### 3. `02-project-conventions.mdc`（~6 行）✅ Always
-
-**用途**: SeasysStart 项目特定约定
-
-**内容**: 当前为空，可填充：
-- 项目标识（名称、前缀、Bundle ID）
-- 技术栈（简洁列表）
-- 代码约定（要点）
-- 目录结构（简化版）
-- 命名规范
-
-**可复用性**: ⚠️ 需要修改为新项目的约定
-
----
-
-### 4. `03-problem-handling.mdc`（~10 行）✅ Always
-
-**用途**: 问题处理指南
-
-**内容**:
-- AI 在问题处理中的职责（提供思路，不直接解决）
-- 问题处理流程
-- Troubleshooting Memory 由用户维护的说明
+**核心内容**:
+- **执行条件**：操作代码/分析文件/技术排查 → 启动 Serena
+- **强制步骤**：初始化 → 加载记忆 → 使用 Serena 工具
+- **🚨 禁止**：直接 `read_file` 读取代码文件
+- **工具选择**：
+  - 探索：`get_symbols_overview` → `find_symbol`
+  - 修改：`search_replace`（首选）
+  - 重构：Serena MCP 符号化工具
 
 **可复用性**: ✅ 完全可跨项目复用
 
 ---
 
-## 工具规则（tools/ 目录）
+### 3. `02-project-conventions.mdc`（53 行）✅ Always
 
-### 5. `tools/quick-build.mdc`（~51 行）❌ 手动触发
+**用途**: 设计原则与项目约束
 
-**用途**: 快捷构建和运行命令
+**核心内容**:
+- **编码流程**：添加/修改/重构代码前必须分析：
+  1. 这段代码的职责是什么？（SRP）
+  2. 是通过扩展还是修改实现？（OCP）
+  3. 需要依赖哪些抽象接口？（DIP）
+- **设计原则**（混合式）：
+  - SRP/OCP/DIP：原则 + 具体执行指令
+  - ISP/LSP/LoD：简要执行说明
+- **强制约束**：
+  - 禁止：Controller 直接网络请求、Request 导入 UIKit、全局变量
+  - 推荐：Protocol + Extension、值类型优先
 
-**触发方式**: `@quick-build`
+**可复用性**: ⚠️ 需根据项目调整（分层规则、类名前缀等）
 
-**功能**:
-- 自动检测项目信息（workspace/scheme）
-- 重启模拟器
-- 静默构建应用
-- 安装并启动应用
+---
+
+## 🛠️ 工具规则详解
+
+### 1. `tools/problem-handling.mdc`（10 行）❌ 按需触发
+
+**用途**: 问题处理指南  
+**触发**: `@problem-handling`  
+**内容**: AI 提供排查思路，不直接解决问题
+
+**可复用性**: ✅ 完全可跨项目复用
+
+---
+
+### 2. `tools/quick-build.mdc`（50 行）❌ 按需触发
+
+**用途**: 快捷构建和运行 iOS 应用  
+**触发**: `@quick-build`  
+**功能**: 自动检测项目 → 重启模拟器 → 构建 → 运行
 
 **可复用性**: ✅ 通用 iOS 项目可复用
 
 ---
 
-### 6. `tools/serena-maintenance.mdc`（~930 行）❌ 手动触发
+### 3. `tools/rules-maintenance.mdc`（187 行）❌ 按需触发
 
-**用途**: 构建和维护 Serena memories
+**用途**: 规则编写与优化指南  
+**触发**: `@rules-maintenance` 或用户说"优化规则"
 
-**触发方式**:
-```
-@serena-maintenance                    # 智能模式（AI 自动判断）
-@serena-maintenance 从头构建 memories   # 手动指定
-@serena-maintenance 更新 tech_stack    # 更新特定文件
-@serena-maintenance 审计质量            # 质量检查
-```
+**核心内容**:
+- 三大核心原则（可执行性、混合式设计、精简）
+- 规则优化检查清单
+- 强制前置分析技巧
+- 优化案例和快速流程
 
-**内容**:
-- 智能使用模式（AI 自动判断操作）
+**可复用性**: ✅ 完全可跨项目复用
+
+---
+
+### 4. `tools/serena-maintenance.mdc`（1149 行）❌ 按需触发
+
+**用途**: 构建和维护 Serena Memories  
+**触发**: `@serena-maintenance`（智能模式）或指定操作
+
+**核心内容**:
+- 智能自动评估流程（4 步）
 - Memory 文件结构规范
-- 完整标准模板（通用化）
-- 构建流程和质量审计
+- 标准模板（project_overview、tech_stack、common_patterns）
+- 质量审计清单
 
-**可复用性**: ✅ 完全可跨项目复用（已通用化）
+**可复用性**: ✅ 完全可跨项目复用
 
 ---
 
-### 7. Xcode 工具集（~285 行）❌ 手动触发
+### 5. `XcodeMCP/xcode-build.mdc`（112 行）❌ 按需触发
 
-#### `tools/xcode-build.mdc`（~57 行）
-- 构建、运行、测试 iOS 应用
-- 支持模拟器和真机
-- 触发方式: `@xcode-build`
-
-#### `tools/xcode-log.mdc`（~97 行）
-- 捕获和分析设备/模拟器日志
-- 实时日志监控
-- 触发方式: `@xcode-log`
-
-#### `tools/xcode-ui.mdc`（~181 行）
-- UI 自动化测试
-- 截图和 UI 元素检查
-- 触发方式: `@xcode-ui`
+**用途**: Xcode 构建和运行工具  
+**触发**: `@xcode-build`  
+**功能**: 构建、运行、测试 iOS 应用（支持模拟器和真机）
 
 **可复用性**: ✅ 通用 iOS 项目可复用
 
 ---
 
-## 职责划分
+### 6. `XcodeMCP/xcode-log.mdc`（370 行）❌ 按需触发
+
+**用途**: Xcode 日志捕获和分析  
+**触发**: `@xcode-log`  
+**功能**: 实时日志监控、错误分析、日志过滤
+
+**可复用性**: ✅ 通用 iOS 项目可复用
+
+---
+
+## 🎭 职责划分
 
 ### Cursor Rules（本目录）
-- ✅ 个人偏好和编码规范
-- ✅ Serena 使用指南（简洁）
-- ✅ 项目特定约定（简洁列表）
-- ✅ 问题处理指南（提供思路）
+- ✅ 个人编码偏好和工作方式
+- ✅ Serena MCP 工作流程和工具规范
+- ✅ 设计原则与项目约束（可执行指令）
+- ✅ 问题处理指南（提供思路，不直接解决）
 - ✅ Memory 维护指南（详细，按需加载）
-- ✅ 开发工具指南（Xcode、快捷命令等）
+- ✅ 开发工具指南（快捷构建命令等）
 
 ### Serena Memories（`.serena/memories/`）
 - ✅ 项目详细信息（project_overview.md）
 - ✅ 技术栈使用详情（tech_stack.md）
 - ✅ 代码模式和示例（common_patterns.md）
-- ❌ Troubleshooting 由用户手动维护
+- ⚠️ Troubleshooting 由用户手动维护（非 AI 生成）
 
-**关键区别**: Cursor = 规范和指导，Serena = 项目知识
+**关键区别**: 
+- **Cursor Rules** = 规范、指导、工作流程（如何做）
+- **Serena Memories** = 项目知识、技术细节（是什么）
 
 ---
 
-## 规则体系优势
+## ✨ 规则体系优势
 
-1. **简洁高效**: Always 规则 ~121 行，不占用过多 token
+1. **精简高效**: Always 规则仅 152 行，token 占用极低
 2. **智能触发**: 自动识别项目任务，强制加载 Serena memories
-3. **详细指导**: 工具规则 ~1316 行，提供完整参考
-4. **清晰分层**: 核心规则（根目录）vs 工具规则（tools/）
-5. **高复用性**: 80% 的规则可直接复用到新项目
-6. **易于维护**: 职责清晰，结构分明
-7. **按需加载**: 工具规则仅在需要时触发
+3. **可执行指令**: 设计原则配合具体执行规则，AI 能真正遵守
+4. **详细指导**: 工具规则 1878 行，提供完整参考和决策树
+5. **清晰分层**: 核心规则（always）vs 工具规则（按需）vs XcodeMCP 工具
+6. **高复用性**: 85% 的规则可直接复用到新项目
+7. **易于维护**: 职责清晰，结构分明
+8. **按需加载**: 工具规则仅在需要时触发，不占用常规对话 token
+9. **持续优化**: 规则编写指南确保规则质量
 
 ---
 
-## 应用到新项目
+## 🚀 应用到新项目
 
-### 完全复用（无需修改）
-- ✅ `00-personal.mdc`
-- ✅ `01-serena-workflow.mdc`
-- ✅ `03-problem-handling.mdc`
-- ✅ `tools/` 目录下所有工具规则
+### ✅ 完全复用（无需修改）
+- `00-personal.mdc` - 个人编码偏好
+- `01-serena-workflow.mdc` - Serena 工作流程
+- `tools/` 目录下所有工具规则
 
-### 需要修改
-- ⚠️ `02-project-conventions.mdc`: 更新为新项目的约定
-  - 项目名称和 Bundle ID
-  - 类名前缀
-  - 技术栈
-  - 目录结构
-  - 命名规范
+### ⚠️ 需要定制
+**`02-project-conventions.mdc`**：根据新项目调整以下内容
+- **编码流程**：保持不变（SRP/OCP/DIP 分析）
+- **设计原则**：保持不变（SOLID 原则和执行指令）
+- **强制约束**：根据项目架构调整：
+  - 分层规则（Controller/Request/View）
+  - 禁止项（根据技术栈调整）
+  - 类名前缀（如 SS → 改为新项目前缀）
 
-### 重新构建
-使用 `@serena-maintenance` 为新项目构建 Serena memories（智能模式）
+### 🔧 初始化步骤
+
+1. **复制规则文件**
+   ```bash
+   cp -r .cursor/rules/ /path/to/newproject/.cursor/
+   ```
+
+2. **调整项目约定**
+   ```bash
+   vim /path/to/newproject/.cursor/rules/02-project-conventions.mdc
+   # 更新强制约束中的项目特定内容
+   ```
+
+3. **配置 Serena MCP**
+   - 确保新项目已配置 Serena MCP 服务器
+   - AI 会自动检测服务器名称（无需修改规则）
+
+4. **构建项目记忆**
+   ```
+   @serena-maintenance  # 智能模式创建 memories
+   ```
 
 ---
 
-## 文件大小统计
+## 📊 规则统计
 
 ### 核心规则（Always）
-| 文件 | Always | 行数 |
-|------|--------|------|
-| `00-personal.mdc` | ✅ | ~40 行 |
-| `01-serena-workflow.mdc` | ✅ | ~65 行 |
-| `02-project-conventions.mdc` | ✅ | ~6 行 |
-| `03-problem-handling.mdc` | ✅ | ~10 行 |
-| **核心规则总计** | | **~121 行** |
+| 文件 | 行数 | 用途 |
+|------|------|------|
+| `00-personal.mdc` | 34 | 个人编码偏好 |
+| `01-serena-workflow.mdc` | 65 | Serena 工作流程 |
+| `02-project-conventions.mdc` | 53 | 设计原则与约束 |
+| **核心规则总计** | **152** | **Always 加载** |
 
 ### 工具规则（按需）
-| 文件 | Always | 行数 |
-|------|--------|------|
-| `tools/quick-build.mdc` | ❌ | ~51 行 |
-| `tools/serena-maintenance.mdc` | ❌ | ~930 行 |
-| `tools/xcode-build.mdc` | ❌ | ~57 行 |
-| `tools/xcode-log.mdc` | ❌ | ~97 行 |
-| `tools/xcode-ui.mdc` | ❌ | ~181 行 |
-| **工具规则总计** | | **~1316 行** |
+| 文件 | 行数 | 用途 |
+|------|------|------|
+| `tools/problem-handling.mdc` | 10 | 问题处理指南 |
+| `tools/quick-build.mdc` | 50 | 快捷构建命令 |
+| `tools/rules-maintenance.mdc` | 187 | 规则编写指南 |
+| `tools/serena-maintenance.mdc` | 1149 | Memory 维护 |
+| **工具规则总计** | **1396** | **按需触发** |
 
-**总计**: ~1437 行
-- Always 规则: ~121 行（精简高效，占 8%）
-- 工具规则: ~1316 行（详细完整，占 92%）
+### XcodeMCP 工具（按需）
+| 文件 | 行数 | 用途 |
+|------|------|------|
+| `XcodeMCP/xcode-build.mdc` | 112 | 构建和运行 |
+| `XcodeMCP/xcode-log.mdc` | 370 | 日志分析 |
+| **XcodeMCP 总计** | **482** | **按需触发** |
+
+**总计**: 2030 行
+- Always 规则: 152 行（精简高效，占 7.5%）
+- 工具规则: 1396 行（详细完整，占 68.8%）
+- XcodeMCP 工具: 482 行（专用工具，占 23.7%）
 
 ---
 
-## 版本历史
+## 📖 使用指南
+
+### 日常开发
+核心规则自动加载，无需手动触发：
+- 编码时遵循设计原则（02 文件会强制 AI 分析）
+- 操作代码时自动加载 Serena memories
+
+### 快速构建
+```bash
+@quick-build      # 重启模拟器并运行应用
+@xcode-build      # 使用 Xcode MCP 构建
+```
+
+### 维护工具
+```bash
+@serena-maintenance      # 维护项目记忆（智能模式）
+@rules-maintenance       # 优化规则文件
+@problem-handling        # 问题排查指导
+```
+
+### 日志分析
+```bash
+@xcode-log        # 查看和分析 Xcode 日志
+```
+
+---
+
+## 📝 版本历史
+
+### v3.4 - 2025-10-31
+**主题**: 规则精简与新增规则编写指南
+
+- ✅ **大幅精简核心规则**（198 行 → 152 行）
+  - 01-serena-workflow.mdc：112 行 → 65 行（减少 42%）
+  - 删除冗余内容，保留核心要点
+- ✅ **新增 rules-maintenance.mdc**（187 行）
+  - 规则编写与优化指南
+  - 三大核心原则：可执行性、混合式设计、精简
+  - 规则质量检查清单
+- ✅ **优化 serena-maintenance.mdc**（1217 行 → 1149 行）
+  - 精简使用示例
+  - 优化常见问题（8 个 → 5 个）
+- ✅ **发现并记录 XcodeMCP 目录**
+  - xcode-build.mdc（112 行）
+  - xcode-log.mdc（370 行）
+- ✅ **全面更新 README.md**
+  - 更新所有文件行数统计
+  - 添加 XcodeMCP 工具说明
+  - 更新使用指南
+
+**改进动机**: Always 规则从 198 行精简到 152 行，降低 token 占用；新增规则编写指南确保规则质量
+
+---
+
+### v3.3 - 2025-10-31
+**主题**: 设计原则可执行化与规则重构
+
+- ✅ **02 文件重大升级**（6 行 → 53 行）
+  - 新增"编码流程"：强制 AI 在编码前分析设计原则
+  - 设计原则混合式：抽象原则 + 具体执行指令
+  - 新增强制约束：明确禁止/推荐项
+- ✅ **README.md 全面重构**
+  - 更新所有文件行数统计（准确反映当前状态）
+  - 精简文件结构说明，增加 emoji 提升可读性
+  - 移除不存在的 xcode-*.mdc 文件说明
+  - 重写核心规则和工具规则详解
+  - 优化跨项目复用指南
+- ✅ **规则可执行性提升**
+  - 从纯抽象原则转变为"原则 + 可执行指令"
+  - AI 能真正检查并遵守设计原则
+  - 提供分层架构的明确约束
+
+**改进动机**: 抽象设计原则难以被 AI 执行，需要转化为具体可检查的指令
+
+---
 
 ### v3.2 - 2025-10-30
 **主题**: 规则通用化与 Serena MCP 强制使用
@@ -321,73 +431,16 @@
 
 ---
 
-## 🔄 跨项目复用指南
+## 💡 维护原则
 
-### 如何将规则迁移到新项目
-
-1. **复制通用规则文件**（可直接使用，无需修改）
-   ```bash
-   # 复制到新项目
-   cp -r .cursor/rules/00-personal.mdc /path/to/newproject/.cursor/rules/
-   cp -r .cursor/rules/01-serena-workflow.mdc /path/to/newproject/.cursor/rules/
-   cp -r .cursor/rules/README.md /path/to/newproject/.cursor/rules/
-   ```
-
-2. **创建项目特定规则**（根据新项目调整）
-   ```bash
-   # 创建新项目约定文件
-   touch /path/to/newproject/.cursor/rules/02-project-conventions.mdc
-   ```
-
-3. **配置 Serena MCP**
-   - 确保新项目已配置 Serena MCP 服务器
-   - 工具会自动检测服务器名称（如 `mcp_serena-myapp_*`）
-   - 无需修改规则文件中的任何内容
-
-4. **初始化项目记忆**
-   - 使用 `@serena-maintenance` 创建 `project_overview.md`
-   - 可选：创建 `tech_stack.md`, `common_patterns.md`
-
-### 通用规则清单
-
-✅ **完全通用**（零修改可复用）:
-- `00-personal.mdc` - 个人编码偏好
-- `01-serena-workflow.mdc` - Serena MCP 工作流
-- `README.md` - 规则说明文档
-- `tools/` 目录下的所有工具规则
-
-⚠️ **需要定制**（根据项目调整）:
-- `02-project-conventions.mdc` - 项目特定约定（类名前缀、架构模式等）
+1. **Always 规则极致精简**：单文件 < 70 行，总计 < 160 行
+2. **可执行性优先**：抽象原则必须配合具体执行指令
+3. **强制触发机制**：项目任务自动加载 Serena memories
+4. **工具规则可详细**：按需触发，提供完整参考和决策树
+5. **定期审查更新**：保持规则与项目实际情况同步
+6. **跨项目复用**：通用规则无需修改，项目特定规则需调整
+7. **使用编写指南**：参考 `@rules-maintenance` 确保规则质量
 
 ---
 
-## 使用建议
-
-### 日常开发
-- 核心规则自动加载，无需手动触发
-- 编码时遵循 `00-personal.mdc` 的规范
-
-### 快速构建
-```
-@quick-build  # 重启模拟器并运行
-```
-
-### 维护 Memories
-```
-@serena-maintenance  # 智能模式，AI 自动判断需要什么操作
-```
-
-### Xcode 开发
-```
-@xcode-build  # 构建和运行
-@xcode-log    # 查看日志
-@xcode-ui     # UI 测试
-```
-
----
-
-**维护原则**: 
-- Always 规则保持精简（<150 行）
-- 强制触发机制确保项目任务自动加载 memories
-- 工具规则可以详细（提供完整参考）
-- 定期审查和更新，保持规则与项目同步
+**最后更新**: 2025-10-31
