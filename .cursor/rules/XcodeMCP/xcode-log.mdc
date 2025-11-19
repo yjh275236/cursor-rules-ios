@@ -3,27 +3,39 @@ alwaysApply: false
 ---
 # Xcode 自动化调试与测试
 
+## ⚠️ 强制立即执行
+**用户引用此规则 = 立即执行MCP工具，不要等待、分析或询问！**
+**AI第一次回复就必须调用：`discover_projs()` → `list_sims()` → `build_run_sim()` 或 `describe_ui()`**
+
 ## 触发方式
 - `@xcode-log.mdc`
 - "调试"、"测试"、"查看日志"、"捕获日志"
 
 ## 核心价值
-**当引用此规则时，表示用户遇到问题（UI问题、数据传输问题、崩溃等）需要调试。AI必须：**
-1. 使用 xcodebuild MCP 工具实现完全自动化流程
-2. 诊断问题并编写调试代码
-3. 执行自动化测试验证修复
-4. **最后必须重新刷新 app，供用户最终检查**
+**⚠️ 强制要求：一旦用户引用 `@xcode-log.mdc`，必须立即开始执行自动化流程，不要分析或等待！**
+
+**AI必须立即执行：**
+1. 第一步：立即调用 `discover_projs()` 和 `list_sims()` 获取项目信息
+2. 第二步：立即调用 `build_run_sim()` 构建运行应用
+3. 第三步：优先使用 `describe_ui()` 分析UI问题（获取frame数据）
+4. 第四步：根据UI数据诊断并修复问题
+5. 第五步：重新构建app，等待用户操作到目标页面后再验证
+
+**禁止行为**：
+- ❌ 不要先分析问题再决定是否执行MCP
+- ❌ 不要等待用户确认才开始
+- ❌ 不要只描述流程而不执行
 
 ## 核心规则（强制执行）
 
-### 规则 1: 完全自动化
-**当引用 `@xcode-log.mdc` 时，必须使用 MCP 工具实现完全自动化，不得手动操作：**
-- 自动检测项目：`discover_projs()`
-- 自动获取模拟器：`list_sims()`
-- 自动构建运行：`build_run_sim()`
-- 自动捕获日志：`launch_app_logs_sim()`
-- 自动检查 UI：`describe_ui()`
-- 自动截屏验证：`screenshot()`
+### 规则 1: 立即执行（强制）⚠️
+**当用户引用 `@xcode-log.mdc` 时，AI必须在第一次回复中立即调用MCP工具：**
+- ✅ 立即执行：`discover_projs()` + `list_sims()` + `build_run_sim()`
+- ✅ 如果应用已运行：直接 `describe_ui()` + `screenshot()` 分析问题
+- ❌ 禁止：先描述流程、分析问题、等待确认再执行
+- ❌ 禁止：问用户是否需要调试或如何调试
+
+**判断标准**：用户引用规则 = 立即执行，无需确认
 
 ### 规则 2: 问题诊断与调试代码编写
 **当引用此规则时，说明用户遇到了问题，AI必须：**
@@ -37,9 +49,9 @@ alwaysApply: false
 1. 停止当前应用：`stop_app_sim()`
 2. 清理构建：`clean()`
 3. 重新构建运行：`build_run_sim()`
-4. 等待启动：`sleep(3-5)`
-5. 验证 UI：`describe_ui()`
-6. **提示用户检查最终结果**
+4. **提示用户：应用已刷新，请操作到目标页面后告诉我"继续"**
+5. **等待用户回复"继续"后**：执行 `describe_ui()` 和 `screenshot()` 验证修复效果
+6. 不要在用户确认前自动等待或自动验证
 
 ## 自动化执行流程
 
@@ -120,15 +132,17 @@ alwaysApply: false
       simulatorName/UUID: "..."
     })
 
-17. sleep(3-5)
+17. **提示用户：应用已刷新，请操作到目标页面后告诉我"继续"**
 
-18. describe_ui({ simulatorUuid: "..." })
+18. **等待用户回复"继续"**
+
+19. describe_ui({ simulatorUuid: "..." })
     → 验证最终状态
 
-19. screenshot({ simulatorUuid: "..." })
+20. screenshot({ simulatorUuid: "..." })
     → 截图供用户检查
 
-20. **提示用户：应用已刷新，请检查最终结果**
+21. 分析验证结果，确认问题已解决
 ```
 
 ## 调试代码编写规范
@@ -253,19 +267,40 @@ func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
 
 ## 问题诊断指南
 
-### UI 问题诊断
+### UI 问题诊断（首选方法）⭐
 ```
-问题现象：黑屏、UI 不显示、布局异常
+问题现象：布局异常、间距错误、元素重叠、大小不对
 
-诊断流程：
-1. describe_ui() → 检查 UI 层次结构
-2. 如果 UI 为空或 children.length === 0 → UI 未加载
-3. 添加调试代码：
-   - viewDidLoad/viewWillAppear
-   - viewDidLayoutSubviews
-   - 关键 UI 更新方法
-4. 捕获日志，检查是否执行到这些方法
-5. 根据日志定位问题代码
+诊断流程（优先使用 describe_ui）：
+1. build_run_sim() → 构建运行应用
+2. **提示用户操作到问题页面，回复"继续"**
+3. describe_ui() → 获取完整UI层次和frame数据
+4. **分析frame数据**：
+   - 检查元素的 x, y, width, height
+   - 计算实际间距：下一个元素.y - (当前元素.y + 当前元素.height)
+   - 对比设计值，定位问题元素
+5. **根据frame数据直接修复约束**，无需添加调试print
+6. 重新构建 → 等待用户操作 → 验证修复
+
+优势：
+✅ 直接获取准确的像素数据，无需猜测
+✅ 不需要添加临时调试代码
+✅ 快速定位布局异常的根本原因
+
+仅在以下情况使用调试print：
+- 动态数据问题（数据未显示、数据错误）
+- 崩溃问题
+- 生命周期问题
+
+示例（弹窗间距问题）：
+describe_ui() 返回：
+  - titleLabel: {y: 140.5, height: 140.5} ❌ 异常！正常应该~20px
+  - descriptionLabel: {y: 296, height: 33.5}
+  - 实际间距：296 - (140.5 + 140.5) = 15px ✅
+  
+分析：标题高度被异常拉伸到140.5px（正常20px）
+修复：添加 contentHuggingPriority 防止拉伸
+验证：重新构建后 titleLabel.height = 21.5px ✅
 ```
 
 ### 数据传输问题诊断
@@ -364,7 +399,16 @@ UI 流程：
 - 项目路径: `/Users/yjh/Desktop/Design patterns`
 
 ## 注意事项
+- ⚠️ **立即执行**：看到 `@xcode-log.mdc` 后，第一次回复就必须调用MCP工具，不要等第二次
 - **强制执行**：引用此规则时，必须完成整个自动化流程，不得中途停止
 - **最后刷新**：无论调试结果如何，最后必须重新构建运行 app
-- **日志工具优先级**：优先使用 `launch_app_logs_sim`，失败时提示查看 Xcode Debug Console
+- **UI问题优先用describe_ui**：直接分析frame数据，不要猜测或添加调试代码
+- **等待用户操作**：重启后不要自动sleep等待，而是提示用户操作到目标页面
 - **迭代调试**：如果问题未解决，继续重复调试流程直到解决
+
+## 快速启动检查清单
+**用户引用 @xcode-log.mdc 时，AI第一次回复必须：**
+- [ ] 立即调用 `discover_projs()` 和 `list_sims()`
+- [ ] 立即调用 `build_run_sim()` 或 `describe_ui()`（如果已运行）
+- [ ] 不要问用户"是否需要调试"或"如何调试"
+- [ ] 不要只描述流程而不执行

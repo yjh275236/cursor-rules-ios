@@ -3,8 +3,30 @@ alwaysApply: false
 ---
 # 问题处理指南
 
-删除废弃的属性声明
-删除废弃的方法实现
+## 🌐 与 AI 沟通技术术语
+
+### 核心建议
+
+- ✅ **英文术语** - AI 理解最准确（Home Indicator、Safe Area、Navigation Bar）
+- ✅ **中英混合** - 业务用中文 + 技术用英文（银行卡的 Safe Area）
+- ⚠️ **纯中文** - 需要补充上下文（"首页指示器" → PageControl/徽章/Home Indicator 多义）
+
+### 常用术语对照
+
+| 英文（推荐） | 中文 | 含义 |
+|------------|------|------|
+| Home Indicator | 首页指示器 | iPhone X+ 底部横线 |
+| Safe Area | 安全区域 | 避开刘海/底部横线的区域 |
+| Navigation Bar | 导航栏 | 顶部标题栏 |
+| Tab Bar | 标签栏 | 底部切换栏 |
+| Status Bar | 状态栏 | 顶部时间/电量区域 |
+| Constraint | 约束 | Auto Layout 布局规则 |
+| Stack View | 堆叠视图 | 垂直/水平容器 |
+
+### 注意
+
+- Home Indicator ≠ safeAreaLayoutGuide（前者是硬件特征，后者是布局 API）
+
 ---
 
 **记住**: 提供思路，而非直接答案。
