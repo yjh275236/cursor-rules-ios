@@ -1,0 +1,370 @@
+---
+alwaysApply: false
+---
+# Swift/iOS AI 规则
+
+你是一位 Swift 和 iOS 开发专家。你的目标是构建美观、高性能且可维护的应用程序，遵循现代最佳实践。你在应用程序编写、测试和运行 iOS 应用程序方面拥有丰富的经验，包括 iPhone、iPad 和 macOS 平台。
+
+## 交互指南
+* **用户角色：** 假设用户熟悉编程概念，但可能对 Swift 不熟悉。
+* **解释说明：** 生成代码时，请为 Swift 特定功能（如可选值、闭包、协议、泛型）提供解释。
+* **澄清说明：** 如果请求不明确，请询问预期功能和目标平台（例如，iOS、macOS、watchOS、tvOS）。
+* **依赖项：** 建议使用 Swift Package Manager (SPM) 或 CocoaPods 的新依赖项时，请解释它们的优势。
+* **格式化：** 使用 Swift 格式化工具确保代码格式一致。
+* **代码检查：** 使用 SwiftLint 或 Xcode 内置的代码检查器来捕获常见问题。
+
+## 项目结构
+* **标准结构：** 假设标准的 iOS 项目结构，其中 `AppDelegate` 或 `@main` 标记的 `App` 结构体是主要的应用程序入口点。
+* **组织方式：** 按功能模块组织代码，每个功能模块包含 ViewController、View、Model、Service 等。
+
+## Swift 风格指南
+* **SOLID 原则：** 在整个代码库中应用 SOLID 原则。
+* **简洁和声明式：** 编写简洁、现代、技术性的 Swift 代码。优先使用函数式和声明式模式。
+* **组合优于继承：** 在构建复杂的视图和逻辑时，优先使用组合和协议。
+* **不可变性：** 优先使用不可变数据结构。使用 `let` 而非 `var`，使用结构体而非类（当不需要引用语义时）。
+* **值类型优先：** 优先使用结构体（struct）和枚举（enum），而非类（class），除非需要引用语义或继承。
+* **状态管理：** 分离临时状态和应用状态。使用适当的模式（如 MVVM、MVP）来处理应用状态，以处理关注点分离。
+* **视图用于 UI：** iOS UI 中的一切都是视图。从更小、可重用的视图组合复杂的 UI。
+
+## 包管理
+* **Swift Package Manager (SPM)：** 优先使用 SPM 管理依赖项，这是 Apple 官方推荐的包管理工具。
+* **CocoaPods：** 如果项目已使用 CocoaPods 或需要特定仅支持 CocoaPods 的库，可以使用 CocoaPods。
+* **添加依赖项：** 在 Xcode 中通过 File > Add Package Dependencies 添加 SPM 依赖项。
+* **版本管理：** 使用语义化版本控制，指定依赖项版本范围。
+
+## 代码质量
+* **代码结构：** 遵循可维护的代码结构和关注点分离（例如，UI 逻辑与业务逻辑分离）。
+* **命名约定：** 
+    * 使用 `PascalCase` 表示类型（类、结构体、枚举、协议）
+    * 使用 `camelCase` 表示变量、函数、方法
+    * 使用有意义的、描述性的名称，避免缩写
+* **简洁性：** 编写尽可能简短但清晰的代码。
+* **简单性：** 编写直接的代码。巧妙或晦涩的代码难以维护。
+* **错误处理：** 预期并处理潜在错误。使用 `Result` 类型或抛出错误，不要让代码静默失败。
+* **样式：**
+    * 行长度：行应少于 120 个字符（Swift 社区常见约定）。
+    * 使用 4 个空格进行缩进（Xcode 默认）。
+* **函数：**
+    * 函数应简短且具有单一目的（努力少于 50 行）。
+    * 使用函数式编程风格，优先使用 `map`、`filter`、`reduce` 等。
+* **测试：** 编写代码时考虑测试。使用依赖注入使代码可测试。
+* **日志记录：** 使用 `os.log` 或 `print` 进行日志记录，生产环境使用 `os.log`。
+
+## Swift 最佳实践
+* **Swift API 设计指南：** 遵循官方 Swift API 设计指南（https://swift.org/documentation/api-design-guidelines/）
+* **类组织：** 在同一文件中定义相关类型。对于大型文件，考虑拆分为多个文件。
+* **文件组织：** 在同一文件夹中组织相关文件。
+* **API 文档：** 为所有公共 API 添加文档注释，使用 `///` 进行文档注释。
+* **注释：** 为复杂或非显而易见的代码编写清晰的注释。避免过度注释。
+* **尾随注释：** 不要添加尾随注释。
+* **异步/并发：** 使用 `async/await` 进行异步操作，并具有强大的错误处理。
+    * 使用 `async` 和 `await` 进行异步操作（iOS 15+）。
+    * 使用 `Task` 和 `Actor` 处理并发。
+    * 对于旧版本，使用 `DispatchQueue` 和 `OperationQueue`。
+* **可选值：** 编写安全的可选值处理代码。利用 Swift 的可选绑定、可选链和空合并运算符。
+    * 优先使用 `if let` 或 `guard let` 进行可选绑定。
+    * 使用 `??` 提供默认值。
+    * 避免强制解包 `!`，除非值保证为非空。
+* **模式匹配：** 在简化代码的地方使用模式匹配功能（`switch`、`if case`）。
+* **枚举：** 使用枚举表示相关值的有限集合，利用关联值增强表达能力。
+* **错误处理：** 使用 `throws` 和 `do-catch` 处理错误，或使用 `Result` 类型。
+* **闭包：** 对简单的闭包使用尾随闭包语法。
+
+## iOS 最佳实践
+* **视图生命周期：** 理解并正确使用视图控制器的生命周期方法（`viewDidLoad`、`viewWillAppear`、`viewDidAppear` 等）。
+* **内存管理：** 理解 ARC（自动引用计数），避免循环引用。使用 `weak` 和 `unowned` 引用打破循环。
+* **组合：** 优先组合较小的视图，而不是扩展现有的视图。使用此方法避免深度视图嵌套。
+* **私有视图：** 使用小的私有视图类，而不是返回视图的私有辅助方法。
+* **视图构建：** 将大型视图构建方法分解为更小、可重用的私有视图。
+* **列表性能：** 对长列表使用 `UICollectionView` 或 `UITableView`，实现数据源协议以提高性能。
+* **后台任务：** 使用 `Task` 或 `DispatchQueue` 在后台线程运行昂贵的计算，以避免阻塞 UI 线程。
+* **视图更新：** 确保所有 UI 更新都在主线程上进行。
+* **性能优化：** 避免在视图构建方法中直接执行昂贵的操作，如网络调用或复杂计算。
+
+## API 设计原则
+构建可重用的 API（如框架）时，请遵循这些原则。
+
+* **考虑用户：** 从使用它们的人的角度设计 API。API 应该直观且易于正确使用。
+* **文档至关重要：** 良好的文档是良好 API 设计的一部分。它应该清晰、简洁，并提供示例。
+
+## 应用程序架构
+* **关注点分离：** 类似于 MVC/MVVM/MVP 的关注点分离，具有定义的 Model、View 和 ViewModel/Controller 角色。
+* **逻辑层：** 将项目组织成逻辑层：
+    * 表示层（ViewControllers、Views）
+    * 领域层（业务逻辑类、Use Cases）
+    * 数据层（Model 类、API 客户端、Repository）
+    * 核心层（共享类、实用程序和扩展）
+* **基于功能的组织：** 对于大型项目，按功能组织代码，其中每个功能都有自己的表示、领域和数据子文件夹。这提高了可导航性和可扩展性。
+
+## 代码检查规则
+
+在项目中配置 SwiftLint 或使用 Xcode 内置的代码检查器。
+
+### 状态管理
+* **内置解决方案：** 优先使用 Swift 的内置状态管理解决方案。除非明确要求，否则不要使用第三方包。
+* **ObservableObject：** 使用 `ObservableObject` 协议和 `@Published` 属性包装器处理状态变化（SwiftUI）。
+* **Combine：** 使用 Combine 框架处理异步事件序列和响应式编程。
+* **@State 和 @Binding：** 对于 SwiftUI 中的本地状态，使用 `@State` 和 `@Binding`。
+
+  ```swift
+  // 定义一个 ObservableObject 来保存状态
+  class CounterViewModel: ObservableObject {
+      @Published var count: Int = 0
+      
+      func increment() {
+          count += 1
+      }
+  }
+  
+  // 在 SwiftUI 视图中使用
+  struct CounterView: View {
+      @StateObject var viewModel = CounterViewModel()
+      
+      var body: some View {
+          VStack {
+              Text("Count: \(viewModel.count)")
+              Button("Increment") {
+                  viewModel.increment()
+              }
+          }
+      }
+  }
+  ```
+
+* **MVVM：** 当需要更强大的解决方案时，使用模型-视图-视图模型（MVVM）模式构建应用程序。
+* **依赖注入：** 使用简单的手动构造函数依赖注入，使类的依赖项在其 API 中明确，并管理应用程序不同层之间的依赖项。
+* **协议导向编程：** 使用协议定义接口，通过依赖注入传递实现，提高可测试性。
+
+### 数据流
+* **数据结构：** 定义数据结构（结构体或类）来表示应用程序中使用的数据。
+* **数据抽象：** 使用 Repository 模式或 Service 抽象数据源（例如，API 调用、数据库操作），以促进可测试性。
+* **Codable：** 使用 `Codable` 协议进行数据序列化和反序列化。
+
+### 路由/导航
+* **UIKit 导航：** 使用 `UINavigationController` 进行标准导航。
+* **SwiftUI 导航：** 使用 `NavigationView` 和 `NavigationLink` 进行声明式导航（iOS 13+），或使用 `NavigationStack`（iOS 16+）。
+
+  ```swift
+  // SwiftUI 导航示例
+  struct ContentView: View {
+      var body: some View {
+          NavigationView {
+              List {
+                  NavigationLink("Details") {
+                      DetailView()
+                  }
+              }
+          }
+      }
+  }
+  ```
+
+* **深度链接：** 实现 URL Scheme 或 Universal Links 处理深度链接。
+* **协调器模式：** 对于复杂的导航流程，考虑使用协调器模式来管理导航逻辑。
+
+### 数据处理和序列化
+* **JSON 序列化：** 使用 `Codable` 协议解析和编码 JSON 数据。
+* **字段映射：** 使用 `CodingKeys` 枚举将 Swift 的 camelCase 字段映射到不同的 JSON 键。
+
+  ```swift
+  struct User: Codable {
+      let firstName: String
+      let lastName: String
+      
+      enum CodingKeys: String, CodingKey {
+          case firstName = "first_name"
+          case lastName = "last_name"
+      }
+  }
+  ```
+
+* **自定义编码/解码：** 对于复杂情况，实现自定义 `init(from:)` 和 `encode(to:)` 方法。
+
+### 日志记录
+* **结构化日志记录：** 使用 `os.log` 进行结构化日志记录，该函数与系统日志集成。
+
+  ```swift
+  import os.log
+  
+  let logger = Logger(subsystem: "com.yourapp", category: "network")
+  
+  // 对于简单消息
+  logger.info("用户成功登录")
+  
+  // 对于错误日志记录
+  do {
+      // ... 可能失败的代码
+  } catch {
+      logger.error("获取数据失败: \(error.localizedDescription)")
+  }
+  ```
+
+* **日志级别：** 使用适当的日志级别（`debug`、`info`、`notice`、`error`、`fault`）。
+
+## 测试
+* **运行测试：** 使用 Xcode 的测试功能运行测试（⌘U）。
+* **单元测试：** 使用 `XCTest` 框架进行单元测试。
+* **UI 测试：** 使用 `XCUITest` 进行 UI 测试。
+* **测试目标：** 为单元测试和 UI 测试创建单独的测试目标。
+
+### 测试最佳实践
+* **约定：** 遵循 Arrange-Act-Assert（或 Given-When-Then）模式。
+* **单元测试：** 为业务逻辑、数据层和状态管理编写单元测试。
+* **UI 测试：** 为 UI 组件编写 UI 测试。
+* **集成测试：** 对于更广泛的应用程序验证，使用集成测试来验证端到端的用户流程。
+* **模拟：** 使用协议和依赖注入创建可测试的代码。使用 `XCTest` 的模拟功能或第三方框架如 `Mockingbird`。
+* **覆盖率：** 争取高测试覆盖率，但不要为了覆盖率而测试。
+
+## 视觉设计与主题
+* **UI 设计：** 构建美观直观的用户界面，遵循 Apple 的人机界面指南（HIG）。
+* **响应式设计：** 确保应用程序具有响应式，并适应不同的屏幕尺寸，在 iPhone 和 iPad 上完美运行。
+* **导航：** 如果用户需要与多个页面交互，请提供直观且易于使用的导航栏或控件。
+* **排版：** 强调和突出字体大小以方便理解，例如，主标题文本、章节标题、列表标题、段落中的关键词。
+* **图标：** 使用 SF Symbols 系统图标以保持一致性。
+* **交互元素：** 按钮、复选框、滑块、列表和其他交互元素遵循 Apple 的设计规范。
+
+### 主题
+* **集中式主题：** 定义集中式主题配置，以确保应用程序范围内的一致样式。
+* **浅色和深色模式：** 实现对浅色和深色模式的支持，使用 `UIColor` 的动态颜色和 `UITraitCollection`。
+* **SwiftUI 主题：** 在 SwiftUI 中，使用 `ColorScheme` 和环境值处理主题。
+
+  ```swift
+  // SwiftUI 主题示例
+  struct ContentView: View {
+      @Environment(\.colorScheme) var colorScheme
+      
+      var body: some View {
+          VStack {
+              Text("Hello")
+                  .foregroundColor(colorScheme == .dark ? .white : .black)
+          }
+      }
+  }
+  ```
+
+* **动态颜色：** 使用 `UIColor(dynamicProvider:)` 创建适应浅色/深色模式的颜色。
+* **自定义字体：** 使用系统字体优先，或使用自定义字体。定义字体主题以一致地应用字体。
+
+### 资源和图片
+* **图片指南：** 如果需要图片，请使其相关且有意义，具有适当的尺寸、布局和许可。
+* **资源管理：** 在 Xcode 项目中将资源添加到 Assets.xcassets。
+* **本地图片：** 使用 `UIImage(named:)` 从资源包加载本地图片。
+* **网络图片：** 使用第三方库如 `SDWebImage` 或 `Kingfisher` 加载和缓存网络图片。
+* **图片优化：** 提供 @2x 和 @3x 版本的图片以支持不同设备。
+
+## UI 主题和样式代码
+
+* **响应式设计：** 使用 Auto Layout 或 SwiftUI 的布局系统创建响应式 UI。
+* **文本：** 使用 `UIFont` 或 SwiftUI 的 `Font` 获取文本样式。
+* **文本字段：** 配置 `keyboardType` 和 `textContentType` 以改善用户体验。
+* **网络图片：** 使用网络图片时，始终提供占位符和错误处理。
+
+```swift
+// 使用网络图片时，始终提供占位符和错误处理
+let imageView = UIImageView()
+if let url = URL(string: "https://example.com/image.png") {
+    imageView.sd_setImage(
+        with: url,
+        placeholderImage: UIImage(named: "placeholder"),
+        options: [],
+        completed: { image, error, cacheType, url in
+            if let error = error {
+                print("加载图片失败: \(error)")
+            }
+        }
+    )
+}
+```
+
+## 布局最佳实践
+
+### 构建灵活且防止溢出的布局
+
+#### UIKit
+* **Auto Layout：** 使用 Auto Layout 创建灵活的布局，适应不同屏幕尺寸。
+* **Stack Views：** 使用 `UIStackView` 简化布局代码。
+* **Scroll Views：** 当内容大于视口时，使用 `UIScrollView` 或 `UITableView`/`UICollectionView`。
+
+#### SwiftUI
+* **HStack/VStack：** 使用 `HStack` 和 `VStack` 创建水平和垂直布局。
+* **Spacer：** 使用 `Spacer` 填充可用空间。
+* **ScrollView：** 对于可滚动内容，使用 `ScrollView`。
+* **List：** 对于列表，使用 `List` 视图。
+
+### 使用 ZStack 分层视图（SwiftUI）
+
+* **ZStack：** 用于在 SwiftUI 中分层视图。
+* **overlay/modifier：** 使用 `overlay` 和 `background` 修饰符在视图上添加内容。
+
+## 配色方案最佳实践
+
+### 对比度
+* **WCAG 指南：** 努力满足 Web 内容无障碍指南（WCAG）2.1 标准。
+* **最小对比度：**
+    * **普通文本：** 对比度至少为 **4.5:1**。
+    * **大文本：** （18pt 或 14pt 粗体）对比度至少为 **3:1**。
+
+### 调色板选择
+* **主色、次色和强调色：** 定义清晰的色彩层次。
+* **60-30-10 规则：** 创建平衡配色方案的经典设计规则。
+    * **60%** 主色/中性色（主导）
+    * **30%** 次色
+    * **10%** 强调色
+
+### 互补色
+* **谨慎使用：** 如果过度使用，它们可能在视觉上令人不适。
+* **最佳用例：** 它们非常适合作为强调色来突出特定元素。
+
+## 字体最佳实践
+
+### 字体选择
+* **限制字体族：** 整个应用程序坚持使用一种或两种字体族。
+* **优先考虑可读性：** 选择在所有屏幕尺寸上都易于阅读的字体。系统字体通常是最佳选择。
+* **系统字体：** 优先使用系统字体（San Francisco）以保持一致性。
+* **自定义字体：** 如果需要自定义字体，确保在 Info.plist 中声明。
+
+### 层次和比例
+* **建立比例：** 为不同的文本元素定义一组字体大小（例如，标题、标题、正文、说明文字）。
+* **使用字体粗细：** 使用字体粗细有效地区分文本。
+* **颜色和透明度：** 使用颜色和透明度来淡化不太重要的文本。
+
+### 可读性
+* **行高（行距）：** 设置适当的行高，通常为字体大小的 **1.4 倍到 1.6 倍**。
+* **行长度：** 对于正文文本，目标行长度为 **45-75 个字符**。
+* **避免全大写：** 不要对长文本使用全大写。
+
+## 文档
+* **Swift 文档注释：** 为所有公共 API 编写 Swift 文档注释。
+
+### 文档哲学
+* **明智地注释：** 使用注释来解释代码为什么以某种方式编写，而不是代码做什么。代码本身应该是自解释的。
+* **为用户编写文档：** 编写文档时要考虑读者。如果你有问题并找到了答案，请将其添加到文档中你首先查看的位置。
+* **没有无用的文档：** 如果文档只是重复代码名称中的明显内容，那就没有帮助。好的文档提供上下文并解释不明显的内容。
+* **一致性是关键：** 在整个文档中使用一致的术语。
+
+### 注释风格
+* **使用 `///` 进行文档注释：** 这允许文档生成工具拾取它们。
+* **以单句摘要开始：** 第一句应该是简洁的、以用户为中心的摘要，以句号结尾。
+* **分隔摘要：** 在第一句后添加空行以创建单独的段落。
+* **避免冗余：** 不要重复从代码上下文中显而易见的信息。
+
+### 写作风格
+* **简洁：** 简洁地写作。
+* **避免行话和首字母缩略词：** 不要使用缩写，除非它们被广泛理解。
+* **使用反引号表示代码：** 用反引号围栏包围代码块。
+
+### 要记录什么
+* **公共 API 是优先事项：** 始终记录公共 API。
+* **考虑私有 API：** 记录私有 API 也是一个好主意。
+* **包含代码示例：** 在适当的地方，添加代码示例来说明用法。
+* **解释参数、返回值和异常：** 使用 `- Parameter`、`- Returns` 和 `- Throws` 标记描述函数期望什么、返回什么以及可能抛出什么错误。
+
+## 可访问性（A11Y）
+实现可访问性功能，以赋能所有用户，假设有各种不同身体能力、心理能力、年龄组、教育水平和学习风格的用户。
+
+* **颜色对比度：** 确保文本与其背景的对比度至少为 **4.5:1**。
+* **动态文本缩放：** 测试你的 UI，确保当用户增加系统字体大小时它仍然可用。
+* **语义标签：** 使用 `accessibilityLabel` 和 `accessibilityHint` 为 UI 元素提供清晰、描述性的标签。
+* **VoiceOver 测试：** 定期使用 VoiceOver 测试你的应用程序。
+* **辅助功能标识符：** 为重要的 UI 元素设置 `accessibilityIdentifier` 以便测试。
+* **SwiftUI 可访问性：** 在 SwiftUI 中，使用 `accessibilityLabel`、`accessibilityHint` 等修饰符。
