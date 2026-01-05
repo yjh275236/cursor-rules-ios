@@ -1,0 +1,40 @@
+{
+    "mcpServers": {
+      "XcodeBuildMCP": {
+        "type": "stdio",
+        "command": "npx -y xcodebuildmcp@latest",
+        "env": {
+          "XCODEBUILDMCP_DYNAMIC_TOOLS": "false",
+          "INCREMENTAL_BUILDS_ENABLED": "false",
+          "XCODEBUILDMCP_SENTRY_DISABLED": "true"
+        },
+        "args": []
+      },
+      "context7": {
+        "url": "https://mcp.context7.com/mcp",
+        "headers": {}
+      },
+      "serena": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": [
+          "--python",
+          "/opt/homebrew/bin/python3.12",
+          "--from",
+          "git+https://github.com/oraios/serena",
+          "serena",
+          "start-mcp-server",
+          "--context",
+          "ide-assistant",
+          "--project",
+          "/Users/yjh/ucake"
+        ]
+      },
+      "dart": {
+        "type": "stdio",
+        "command": "dart mcp-server --experimental-mcp-server --force-roots-fallback",
+        "env": {},
+        "args": []
+      }
+    }
+  }

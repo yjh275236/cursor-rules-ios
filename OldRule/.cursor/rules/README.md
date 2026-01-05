@@ -27,6 +27,7 @@
 ├── 02-project-conventions.mdc   # 设计原则与约束 [always, 53行]
 ├── README.md                    # 本文件
 ├── tools/                       # 工具类规则 [按需触发]
+│   ├── api-integration.mdc      # 接口对接规范 [~500行]
 │   ├── problem-handling.mdc     # 问题处理合集 [32行]
 │   ├── quick-build.mdc          # 快捷构建命令 [50行]
 │   ├── rules-maintenance.mdc    # 规则编写指南 [436行]
@@ -38,9 +39,9 @@
 
 **统计**：
 - 核心规则（Always）：175 行
-- 工具规则（按需）：1293 行
+- 工具规则（按需）：~1793 行
 - XcodeMCP 工具：526 行
-- 总计：1994 行
+- 总计：~2494 行
 
 ---
 
@@ -99,7 +100,24 @@
 
 ## 🛠️ 工具规则详解
 
-### 1. `tools/problem-handling.mdc`（32 行）❌ 按需触发
+### 1. `tools/api-integration.mdc`（~500 行）❌ 按需触发
+
+**用途**: UI 页面完成后对接真实接口的完整规范  
+**触发**: `@api-integration` 或 UI 页面完成后需要接接口时  
+**核心内容**:
+- 接口对接前检查清单（确认接口信息、检查项目架构）
+- Model 创建规范（Codable、字段映射、命名规范）
+- 网络请求规范（复用项目封装、参数构建、错误处理）
+- UI 状态处理规范（Loading、Success、Error、Empty 四种状态）
+- 数据替换规范（删除模拟数据、更新数据绑定）
+- 接口对接后验证清单（功能验证、场景测试、代码质量验证）
+- 与现有规则的配合（Plan 文档同步、代码清理、架构检查）
+
+**可复用性**: ✅ 完全可跨项目复用
+
+---
+
+### 2. `tools/problem-handling.mdc`（32 行）❌ 按需触发
 
 **用途**: 问题处理合集  
 **触发**: `@problem-handling`  
@@ -112,7 +130,7 @@
 
 ---
 
-### 2. `tools/quick-build.mdc`（50 行）❌ 按需触发
+### 3. `tools/quick-build.mdc`（50 行）❌ 按需触发
 
 **用途**: 快捷构建和运行 iOS 应用  
 **触发**: `@quick-build`  
@@ -122,7 +140,7 @@
 
 ---
 
-### 3. `tools/rules-maintenance.mdc`（436 行）❌ 按需触发
+### 4. `tools/rules-maintenance.mdc`（436 行）❌ 按需触发
 
 **用途**: 规则编写与优化指南  
 **触发**: `@rules-maintenance` 或用户说"优化规则"
@@ -141,7 +159,7 @@
 
 ---
 
-### 4. `tools/serena-maintenance.mdc`（775 行）❌ 按需触发
+### 5. `tools/serena-maintenance.mdc`（775 行）❌ 按需触发
 
 **用途**: 构建和维护 Serena Memories  
 **触发**: `@serena-maintenance`（智能模式）或指定操作
@@ -266,11 +284,12 @@
 ### 工具规则（按需）
 | 文件 | 行数 | 用途 |
 |------|------|------|
+| `tools/api-integration.mdc` | ~500 | 接口对接规范 |
 | `tools/problem-handling.mdc` | 32 | 问题处理合集 |
 | `tools/quick-build.mdc` | 50 | 快捷构建命令 |
 | `tools/rules-maintenance.mdc` | 436 | 规则编写指南 |
 | `tools/serena-maintenance.mdc` | 775 | Memory 维护 |
-| **工具规则总计** | **1293** | **按需触发** |
+| **工具规则总计** | **~1793** | **按需触发** |
 
 ### XcodeMCP 工具（按需）
 | 文件 | 行数 | 用途 |
@@ -279,10 +298,10 @@
 | `XcodeMCP/xcode-log.mdc` | 414 | 日志分析 |
 | **XcodeMCP 总计** | **526** | **按需触发** |
 
-**总计**: 1994 行
-- Always 规则: 175 行（精简高效，占 8.8%）
-- 工具规则: 1293 行（详细完整，占 64.8%）
-- XcodeMCP 工具: 526 行（专用工具，占 26.4%）
+**总计**: ~2494 行
+- Always 规则: 175 行（精简高效，占 7.0%）
+- 工具规则: ~1793 行（详细完整，占 71.9%）
+- XcodeMCP 工具: 526 行（专用工具，占 21.1%）
 
 ---
 
@@ -301,6 +320,7 @@
 
 ### 维护工具
 ```bash
+@api-integration         # 接口对接规范（UI 完成后接接口时）
 @serena-maintenance      # 维护项目记忆（智能模式）
 @rules-maintenance       # 优化规则文件
 @problem-handling        # 问题排查指导
@@ -474,4 +494,4 @@
 
 ---
 
-**最后更新**: 2025-11-06
+**最后更新**: 2025-01-XX（新增接口对接规范）

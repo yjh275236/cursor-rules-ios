@@ -17,51 +17,63 @@
 ## 目录结构
 ```
 .cursor/rules/                      # Cursor 规则（规范、流程、工具）
-├── 00-personal.mdc                 # 个人编码偏好（Always）
-├── 01-serena-workflow.mdc          # Serena 工作流程（Always）
-├── 02-project-conventions.mdc      # 项目约定（Always，需按项目填写）
-├── 03-project-plan-sync.mdc        # Plan 文档同步规则（Always）
-├── README.md                       # 规则说明（当前目录说明）
-├── tools/                          # 工具类规则（按需触发）
-│   ├── plan-reference.mdc         # Plan 文档参考样式
-│   ├── problem-handling.mdc        # 问题处理合集
-│   ├── quick-build.mdc             # 快捷构建
-│   ├── rules-maintenance.mdc       # 规则编写指南
-│   ├── serena-maintenance.mdc      # Serena 记忆维护
-│   └── troubleshooting-log.md      # 故障排查日志
-└── XcodeMCP/                       # Xcode MCP 工具（按需触发）
-    ├── xcode-build.mdc             # Xcode 构建运行
-    └── xcode-log.mdc               # 设备/模拟器日志
+├── plan-project-sync.mdc           # Plan 文档同步规则（按需触发）
+└── tools/                          # 工具类规则（按需触发）
+    ├── plan-api-integration.mdc    # 接口对接规范
+    ├── plan-reference.mdc          # Plan 文档参考样式
+    ├── problem-handling.mdc         # 问题处理合集
+    ├── quick-build.mdc              # 快捷构建
+    └── rules-maintenance.mdc        # 规则编写指南
 
-.serena/memories/                   # Serena 项目记忆（项目知识库）
+.serena/memories/                   # Serena 项目记忆（项目知识库，需自行创建）
 ├── project_overview.md             # 项目概览（必须）
 ├── tech_stack.md                   # 技术栈细节（推荐）
-└── common_patterns.md             # 常见模式与示例（推荐）
+└── common_patterns.md              # 常见模式与示例（推荐）
+注：可参考 OldRule/.serena/memories/ 中的示例文件
+
+ComprehensiveAiRules/              # 综合 AI 规则集合（跨平台规则）
+├── Flutter-AI-Rules-CN.mdc        # Flutter 开发规则
+├── HarmonyOS-AI-Rules-CN.mdc      # HarmonyOS 开发规则
+└── Swift-AI-Rules-CN.mdc          # Swift/iOS 开发规则
+
+项目根目录/
+├── ios.plan.md                     # iOS 项目需求文档（Plan 文档）
+└── OldRule/                        # 历史规则文件（仅供参考）
 ```
 
 ## 使用方式（在 Cursor 中）
-- **核心规则自动加载**（Always）
-  - `00-personal.mdc`、`01-serena-workflow.mdc`、`02-project-conventions.mdc`、`03-project-plan-sync.mdc`
 - **项目任务场景**（自动触发 Serena 工作流）
   1) 初始化 Serena：加载 `project_overview.md`
   2) 需要第三方库/实现模式：再加载 `tech_stack.md`、`common_patterns.md`
   3) 探索代码：优先使用符号化工具（禁止直接全文 `read_file`）
 - **工具规则按需触发**：
-  - **构建运行**：`@quick-build`、`@xcode-build`
-  - **日志分析**：`@xcode-log`
-  - **维护工具**：`@serena-maintenance`、`@rules-maintenance`
+  - **接口对接**：`@plan-api-integration`（UI 完成后接接口时）
+  - **构建运行**：`@quick-build`
+  - **维护工具**：`@rules-maintenance`
   - **问题处理**：`@problem-handling`
-  - **Plan 文档**：`@plan-reference`（编写/更新 plan 文档时）
+  - **Plan 文档同步**：`@plan-project-sync`（代码修改后同步 plan 文档）
+  - **Plan 文档参考**：`@plan-reference`（编写/更新 plan 文档时）
 
 ### 关于记忆的生成与维护
-- `.serena/memories` 下的记忆文件由 `@serena-maintenance` 基于你的项目自动生成与持续维护；
-- 你只需在对话中触发 `@serena-maintenance`（或按 README 指引操作），AI 会读取并使用这些记忆进行协作；
-- 当项目有结构/技术栈变更时，重新运行 `@serena-maintenance` 以更新记忆内容。
+- `.serena/memories` 下的记忆文件包含项目的核心知识库（项目概览、技术栈、常见模式等）；
+- AI 会在需要时自动读取并使用这些记忆进行协作；
+- 当项目有结构/技术栈变更时，建议手动更新相应的记忆文件以保持同步。
 
 ### 关于 Plan 文档同步
-- `03-project-plan-sync.mdc` 确保 `项目.plan.md` 与代码保持同步；
-- 代码修改后自动检查是否需要更新 plan 文档（架构变更、功能变更、UI 变更等）；
+- `plan-project-sync.mdc` 确保 `项目.plan.md` 与代码保持同步；
+- 代码修改后使用 `@plan-project-sync` 检查是否需要更新 plan 文档（架构变更、功能变更、UI 变更等）；
 - 生成代码前会检查 plan 文档中的架构规范，确保复用现有组件。
+
+### 关于接口对接规范
+- `plan-api-integration.mdc` 提供 UI 页面完成后对接真实接口的完整流程规范；
+- 包含：接口对接前检查、Model 创建、网络请求、UI 状态处理、数据替换、验证清单等；
+- 确保接口对接过程规范、代码质量高、状态处理完整。
+
+### 关于综合 AI 规则集合
+- `ComprehensiveAiRules/` 目录包含跨平台的 AI 开发规则；
+- `Swift-AI-Rules-CN.mdc`：Swift/iOS 开发的综合规则，包含交互指南、项目结构、代码风格、包管理等；
+- `Flutter-AI-Rules-CN.mdc` 和 `HarmonyOS-AI-Rules-CN.mdc`：其他平台的开发规则；
+- 这些规则可作为 `.cursor/rules/` 的补充，或用于其他平台项目的参考。
 
 ## 项目记忆模板（示例）
 - `project_overview.md` 提供了一套借贷类 App 的模板信息（模块划分、网络层、基类、配置等），可作为新项目初始化参考。
@@ -72,31 +84,37 @@
 
 ## 快速开始（复用到新项目）
 1. 复制 `.cursor/rules/` 至你的项目根目录。
-2. 根据你的项目，填写 `02-project-conventions.mdc` 与搭建 Serena MCP。
-3. 在 Cursor 中直接开始对话，触发 `@serena-maintenance` 自动生成/更新记忆文件。
-4. 如需使用 Plan 文档同步功能，确保项目根目录有 `项目.plan.md` 文件。
+2. 创建 `.serena/memories/` 目录，并参考 `OldRule/.serena/memories/` 中的示例文件创建以下记忆文件：
+   - `project_overview.md`（项目概览，必须）
+   - `tech_stack.md`（技术栈细节，推荐）
+   - `common_patterns.md`（常见模式与示例，推荐）
+3. 根据你的项目，更新 `.serena/memories/` 下的记忆文件内容。
+4. 在 Cursor 中直接开始对话，AI 会自动读取并使用这些记忆进行协作。
+5. 如需使用 Plan 文档同步功能，确保项目根目录有 `项目.plan.md` 文件，并使用 `@plan-project-sync` 保持同步。
+6. （可选）如需跨平台开发规则，可参考 `ComprehensiveAiRules/` 目录下的对应规则文件。
 
 ## 与 iOS 开发的关系
 - 本仓库不包含业务代码，但内置的规则/记忆对以下方面提供指导：
   - 架构与基类组织（如 `SSBaseViewController`、`SSBaseRequest` 等模板思路）
   - 网络请求/缓存/异步流程的通用约定
-  - 构建、运行、日志等 Xcode 工具化动作
+  - 接口对接规范（从 UI 完成到接口对接的完整流程）
+  - 构建、运行等 Xcode 工具化动作
   - Plan 文档与代码的双向同步机制
+  - Swift/iOS 开发的综合最佳实践（参考 `ComprehensiveAiRules/Swift-AI-Rules-CN.mdc`）
 
 ## 贡献指南
 - 提交前请确保：
   - 新增/修改的规则清晰、可复用、与现有体系一致；
-  - Always 规则保持精简；
   - 工具规则提供清晰的触发方式与示例。
 - 建议在 PR 描述中附：变更动机、适用场景、示例对话。
 
 ## 版本与维护
-- 版本历史与变更要点请参考 `.cursor/rules/README.md` 中的「版本历史」。
-- 建议定期运行 `@serena-maintenance` 对记忆文件进行审计与更新。
+- 建议定期更新 `.serena/memories/` 下的记忆文件，确保与项目实际状态保持一致。
 - 规则优化请参考 `@rules-maintenance` 指南，确保规则的可执行性和有效性。
+- 当前项目 Plan 文档：`ios.plan.md`（包含完整的 UI 布局和功能需求说明）。
 
 ## 许可证
 - 若无特别说明，文档与规则以 MIT 许可发布。你可以自由复用并在项目内修改。
 
 ---
-如需根据你的业务进行定制，可在 `02-project-conventions.mdc` 与 `.serena/memories/*` 中补充你项目的专属信息。
+如需根据你的业务进行定制，可在 `.serena/memories/*` 中补充你项目的专属信息。
